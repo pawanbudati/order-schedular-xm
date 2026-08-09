@@ -15,7 +15,7 @@ export default function App() {
   const [tickers, setTickers] = useState<Ticker[]>([]);
   const [selectedTicker, setSelectedTicker] = useState<Ticker | null>(null);
   const [quantity, setQuantity] = useState<string>('0.01');
-  const [leverage, setLeverage] = useState<number>(10);
+  const [leverage, setLeverage] = useState<number>(1000);
   const [orders, setOrders] = useState<ScheduledOrder[]>([]);
   const [logs, setLogs] = useState<ExecutionLog[]>([]);
 
