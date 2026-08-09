@@ -28,6 +28,11 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
   useEffect(() => {
     if (isOpen) {
       setBackendUrlInput(getBackendUrl());
+      setApiToken(localStorage.getItem('XM360_API_TOKEN') || 'LOCAL');
+      setAccountId(localStorage.getItem('XM360_ACCOUNT_ID') || '');
+      setPassword(localStorage.getItem('XM360_PASSWORD') || '');
+      setServerName(localStorage.getItem('XM360_SERVER_NAME') || 'XMGlobal-Real 30');
+      setPlatform((localStorage.getItem('XM360_PLATFORM') as 'MT4' | 'MT5') || 'MT5');
     }
   }, [isOpen]);
 
@@ -38,6 +43,12 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
     setIsSaving(true);
     try {
       setBackendUrl(backendUrl);
+      localStorage.setItem('XM360_API_TOKEN', apiToken || 'LOCAL');
+      if (accountId) localStorage.setItem('XM360_ACCOUNT_ID', accountId);
+      if (password) localStorage.setItem('XM360_PASSWORD', password);
+      if (serverName) localStorage.setItem('XM360_SERVER_NAME', serverName);
+      if (platform) localStorage.setItem('XM360_PLATFORM', platform);
+
       await onSaveConfig({ apiToken, accountId, password, serverName, platform });
       setSuccessMsg(true);
       setTimeout(() => {
