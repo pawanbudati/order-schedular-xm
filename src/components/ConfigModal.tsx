@@ -23,7 +23,6 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
   const [platform, setPlatform] = useState<'MT4' | 'MT5'>('MT5');
   const [backendUrl, setBackendUrlInput] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isRestartingMt5, setIsRestartingMt5] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
 
   useEffect(() => {
@@ -49,22 +48,6 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
       console.error(err);
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleRestartMt5 = async () => {
-    setIsRestartingMt5(true);
-    try {
-      // Save current credentials first if provided
-      if (accountId || password) {
-        await onSaveConfig({ apiToken, accountId, password, serverName, platform });
-      }
-      const res = await api.restartMt5Bridge();
-      alert(res.message || 'Headless MT5 Docker container restarted!');
-    } catch (err: any) {
-      alert('Failed to restart MT5 container: ' + (err.message || 'Unknown error'));
-    } finally {
-      setIsRestartingMt5(false);
     }
   };
 
@@ -168,25 +151,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
             />
           </div>
 
-          {/* MT5 Docker Bridge Manager Box */}
-          <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <div>
-                <span className="text-xs font-semibold text-slate-200">Headless MT5 Docker Bridge</span>
-                <p className="text-[10px] text-slate-400">Manage & restart local MT5 container on GCP VM</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleRestartMt5}
-              disabled={isRestartingMt5}
-              className="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRestartingMt5 ? 'animate-spin' : ''}`} />
-              <span>{isRestartingMt5 ? 'Restarting...' : 'Restart MT5'}</span>
-            </button>
-          </div>
+
 
           <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />

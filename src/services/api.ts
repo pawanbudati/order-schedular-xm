@@ -60,13 +60,6 @@ export const api = {
     }
   },
 
-  async restartMt5Bridge(): Promise<{ success: boolean; message: string }> {
-    try {
-      const res = await axios.post(`${getApiBase()}/config/restart-mt5`, {}, { timeout: 10000 });
-      return res.data;
-    } catch (err: any) {
-      return { success: false, message: err?.response?.data?.error || 'Failed to restart MT5 Bridge container.' };
-    }
   },
 
   async getBalance(): Promise<AccountBalance> {
