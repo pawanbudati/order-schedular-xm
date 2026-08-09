@@ -69,8 +69,8 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-panel p-6 rounded-2xl border border-slate-800 max-w-lg w-full shadow-2xl relative">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800"

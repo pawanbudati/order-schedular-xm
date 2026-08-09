@@ -13,8 +13,8 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose, logs, onR
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-panel p-6 rounded-2xl border border-slate-800 max-w-3xl w-full h-[80vh] shadow-2xl relative flex flex-col justify-between">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800 max-w-3xl w-full h-[90vh] sm:h-[80vh] shadow-2xl relative flex flex-col justify-between">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
           <div className="flex items-center gap-3">

@@ -49,16 +49,16 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       </div>
 
       {/* Main Balance Numbers */}
-      <div className="grid grid-cols-2 gap-3 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800/80">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 bg-slate-900/60 p-3 sm:p-3.5 rounded-xl border border-slate-800/80">
         <div>
-          <span className="text-[11px] text-slate-400 font-medium">Free Margin ({balance?.currency || 'USD'})</span>
-          <div className="text-xl font-bold text-white font-mono mt-0.5">
+          <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">Free Margin ({balance?.currency || 'USD'})</span>
+          <div className="text-base sm:text-xl font-bold text-white font-mono mt-0.5 truncate">
             ${availMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
         <div>
-          <span className="text-[11px] text-slate-400 font-medium">Purchasing Power ({leverage}x)</span>
-          <div className="text-xl font-bold text-cyan-400 font-mono mt-0.5">
+          <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">Purchasing Power ({leverage}x)</span>
+          <div className="text-base sm:text-xl font-bold text-cyan-400 font-mono mt-0.5 truncate">
             ${maxPurchasingPowerUsdt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>

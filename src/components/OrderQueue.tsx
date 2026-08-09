@@ -72,19 +72,92 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
           <p className="text-xs text-slate-600">Use the Order Form above to set your first exact timestamp trigger.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="text-slate-400 border-b border-slate-800/80 font-medium">
-                <th className="py-3 px-3">Order Details</th>
-                <th className="py-3 px-3">Type / Leverage</th>
-                <th className="py-3 px-3">Scheduled Time (IST)</th>
-                <th className="py-3 px-3">Countdown / Precision</th>
-                <th className="py-3 px-3">Status</th>
-                <th className="py-3 px-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60">
+        <>
+          {/* Mobile Card List (Visible on screens < 640px) */}
+          <div className="block sm:hidden space-y-3">
+            {orders.map((order) => {
+              const isPending = order.status === 'PENDING';
+              const isExecuting = order.status === 'EXECUTING';
+              const isCompleted = order.status === 'COMPLETED';
+              const isFailed = order.status === 'FAILED';
+              const isCancelled = order.status === 'CANCELLED';
+              const displayTargetTime = order.targetTimeFormatted && order.targetTimeFormatted.includes('IST')
+                ? order.targetTimeFormatted
+                : formatIST(order.targetTime);
+
+              return (
+                <div key={order.id} className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 flex flex-col gap-2 font-mono text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        order.side === 'BUY'
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                      }`}>
+                        {order.side}
+                      </span>
+                      <span className="font-bold text-slate-100 text-sm">{order.symbol}</span>
+                      <span className="text-[11px] text-slate-400">{order.quantity} Lots</span>
+                    </div>
+
+                    {isPending && (
+                      <button
+                        onClick={() => onCancelOrder(order.id)}
+                        className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[11px] font-semibold flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Cancel</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Target: <strong className="text-cyan-300">{displayTargetTime}</strong></span>
+                    <span>Leverage: {order.leverage}x</span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/60">
+                    {isPending && (
+                      <div className="font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-lg inline-flex items-center gap-1">
+                        <Clock className="w-3 h-3 animate-spin text-cyan-400" />
+                        <span>{formatCountdown(order.targetTime)}</span>
+                      </div>
+                    )}
+                    {isCompleted && (
+                      <div className="text-emerald-400 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Done ({order.precisionDriftMs ? `${order.precisionDriftMs > 0 ? '+' : ''}${order.precisionDriftMs}ms` : '0ms'})</span>
+                      </div>
+                    )}
+                    {isFailed && (
+                      <div className="text-rose-400 font-semibold flex items-center gap-1">
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>Failed</span>
+                      </div>
+                    )}
+                    {isCancelled && (
+                      <span className="text-slate-500">Cancelled</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View (Visible on screens >= 640px) */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="text-slate-400 border-b border-slate-800/80 font-medium">
+                  <th className="py-3 px-3">Order Details</th>
+                  <th className="py-3 px-3">Type / Leverage</th>
+                  <th className="py-3 px-3">Scheduled Time (IST)</th>
+                  <th className="py-3 px-3">Countdown / Precision</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
               {orders.map((order) => {
                 const isPending = order.status === 'PENDING';
                 const isExecuting = order.status === 'EXECUTING';
@@ -221,6 +294,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );
