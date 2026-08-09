@@ -144,13 +144,13 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
                 <Server className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Backend API Server URL</span>
               </span>
-              <span className="text-[10px] text-slate-500">Default: http://localhost:3001/api</span>
+              <span className="text-[10px] text-slate-500">Default: http://localhost:8444/api</span>
             </label>
             <input
               type="text"
               value={backendUrl}
               onChange={(e) => setBackendUrlInput(e.target.value)}
-              placeholder="e.g. http://localhost:3001/api"
+              placeholder="e.g. https://neo-copier.duckdns.org/xm-api"
               className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-cyan-300 focus:outline-none focus:border-cyan-500"
             />
           </div>

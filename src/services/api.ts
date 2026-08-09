@@ -10,7 +10,7 @@ export const getBackendUrl = (): string => {
   if (customUrl) return customUrl.replace(/\/$/, '');
   const envUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL;
   if (envUrl) return envUrl.replace(/\/$/, '');
-  return 'http://localhost:3001/api';
+  return 'http://localhost:8444/api';
 };
 
 export const setBackendUrl = (url: string): void => {
