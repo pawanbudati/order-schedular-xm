@@ -138,6 +138,7 @@ export default function App() {
   const handleSaveConfig = async (config: {
     apiToken: string;
     accountId: string;
+    password?: string;
     serverName: string;
     platform: 'MT4' | 'MT5';
     isDemo: boolean;

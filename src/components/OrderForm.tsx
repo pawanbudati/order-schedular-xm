@@ -35,7 +35,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   onSubmitSchedule,
 }) => {
   const [side, setSide] = useState<'BUY' | 'SELL'>('BUY');
-  const [positionMode, setPositionMode] = useState<'ONE_WAY' | 'HEDGE'>('HEDGE');
   const [orderType, setOrderType] = useState<'MARKET' | 'LIMIT'>('MARKET');
   const [limitPrice, setLimitPrice] = useState<string>('');
   const [stopLoss, setStopLoss] = useState<string>('');
@@ -53,21 +52,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   useEffect(() => {
     setOffsetSeconds(30);
   }, []);
-
-  // Auto-switch to Hedge Mode for XM instruments (Gold XAUUSD / Forex pairs)
-  useEffect(() => {
-    if (selectedTicker) {
-      const sym = selectedTicker.symbol.toUpperCase();
-      if (sym.includes('XAU') || sym.includes('GOLD') || sym.includes('SILVER') || sym.includes('EUR')) {
-        setPositionMode('HEDGE');
-      }
-    }
-  }, [selectedTicker]);
-
-  const getComputedPositionSide = (): 'LONG' | 'SHORT' | 'BOTH' => {
-    if (positionMode === 'ONE_WAY') return 'BOTH';
-    return side === 'BUY' ? 'LONG' : 'SHORT';
-  };
 
   // Set target date/time relative to now in IST timezone
   const setOffsetSeconds = (secondsToAdd: number) => {
@@ -136,7 +120,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       await onSubmitSchedule({
         symbol: selectedTicker.symbol,
         side,
-        positionSide: getComputedPositionSide(),
+        positionSide: side === 'BUY' ? 'LONG' : 'SHORT',
         type: orderType,
         price: orderType === 'LIMIT' ? parseFloat(limitPrice) : undefined,
         quantity: qtyNum,
@@ -166,35 +150,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Position Mode Selector (One-Way vs Hedge) */}
-          <div className="flex bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-[11px]">
-            <button
-              type="button"
-              onClick={() => setPositionMode('HEDGE')}
-              title="Hedge Mode (MetaTrader Default)"
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                positionMode === 'HEDGE'
-                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Hedge Mode
-            </button>
-            <button
-              type="button"
-              onClick={() => setPositionMode('ONE_WAY')}
-              title="One-Way Mode"
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                positionMode === 'ONE_WAY'
-                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              One-Way
-            </button>
-          </div>
-
-          {/* Side Selector Tabs */}
+          {/* Side Selector Tabs (BUY / SELL) */}
           <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800">
             <button
               type="button"

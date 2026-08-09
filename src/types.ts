@@ -7,6 +7,12 @@ export interface SystemStatus {
   isDemo: boolean;
   accountId?: string;
   serverName?: string;
+  platform?: string;
+  mt5DockerStatus?: {
+    containerRunning: boolean;
+    containerExists: boolean;
+    accountId?: string;
+  };
 }
 
 export interface AccountBalance {

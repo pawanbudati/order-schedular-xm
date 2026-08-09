@@ -49,6 +49,7 @@ export const api = {
   async updateConfig(config: {
     apiToken?: string;
     accountId?: string;
+    password?: string;
     serverName?: string;
     platform?: 'MT4' | 'MT5';
     isDemo?: boolean;
@@ -58,6 +59,15 @@ export const api = {
       return res.data;
     } catch {
       return { success: true, message: 'Config saved locally (Offline Mode)' };
+    }
+  },
+
+  async restartMt5Bridge(): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await axios.post(`${getApiBase()}/config/restart-mt5`, {}, { timeout: 10000 });
+      return res.data;
+    } catch (err: any) {
+      return { success: false, message: err?.response?.data?.error || 'Failed to restart MT5 Bridge container.' };
     }
   },
 
