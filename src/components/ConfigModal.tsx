@@ -23,6 +23,8 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
   const [platform, setPlatform] = useState<'MT4' | 'MT5'>('MT5');
   const [backendUrl, setBackendUrlInput] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [connectMsg, setConnectMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
 
   useEffect(() => {
@@ -33,10 +35,39 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
       setPassword(localStorage.getItem('XM360_PASSWORD') || '');
       setServerName(localStorage.getItem('XM360_SERVER_NAME') || 'XMGlobal-Real 30');
       setPlatform((localStorage.getItem('XM360_PLATFORM') as 'MT4' | 'MT5') || 'MT5');
+      setConnectMsg(null);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleConnectBridge = async () => {
+    setIsConnecting(true);
+    setConnectMsg(null);
+    try {
+      setBackendUrl(backendUrl);
+      localStorage.setItem('XM360_API_TOKEN', apiToken || 'LOCAL');
+      if (accountId) localStorage.setItem('XM360_ACCOUNT_ID', accountId);
+      if (password) localStorage.setItem('XM360_PASSWORD', password);
+      if (serverName) localStorage.setItem('XM360_SERVER_NAME', serverName);
+      if (platform) localStorage.setItem('XM360_PLATFORM', platform);
+
+      // Save config first
+      await onSaveConfig({ apiToken, accountId, password, serverName, platform });
+
+      // Trigger manual bridge connection
+      const res = await api.connectMt5Bridge();
+      if (res.success) {
+        setConnectMsg({ type: 'success', text: res.message });
+      } else {
+        setConnectMsg({ type: 'error', text: res.message });
+      }
+    } catch (err: any) {
+      setConnectMsg({ type: 'error', text: err.message || 'Failed to connect to MT5 Bridge' });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,6 +194,38 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
           </div>
 
 
+
+          {/* Manual MT5 Connection Trigger Box */}
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${isConnecting ? 'bg-amber-400 animate-ping' : 'bg-cyan-400 animate-pulse'}`} />
+                <div>
+                  <span className="text-xs font-semibold text-slate-200">MT5 Local Execution Bridge</span>
+                  <p className="text-[10px] text-slate-400">Trigger connection to MT5 terminal using saved credentials</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleConnectBridge}
+                disabled={isConnecting}
+                className="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isConnecting ? 'animate-spin' : ''}`} />
+                <span>{isConnecting ? 'Connecting...' : 'Connect to MT5'}</span>
+              </button>
+            </div>
+
+            {connectMsg && (
+              <div className={`p-2.5 rounded-lg text-xs font-medium border flex items-start gap-2 ${
+                connectMsg.type === 'success'
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+              }`}>
+                <span>{connectMsg.text}</span>
+              </div>
+            )}
+          </div>
 
           <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />

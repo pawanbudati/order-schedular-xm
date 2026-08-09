@@ -60,6 +60,18 @@ export const api = {
     }
   },
 
+  async connectMt5Bridge(): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await axios.post(`${getApiBase()}/config/connect-mt5`, {}, { timeout: 8000 });
+      return res.data;
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err?.response?.data?.message || err?.message || 'Failed to connect to MT5 Bridge.',
+      };
+    }
+  },
+
   async getBalance(): Promise<AccountBalance> {
     try {
       const res = await axios.get(`${getApiBase()}/balance`, { timeout: 3000 });
