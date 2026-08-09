@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        bingx: {
+        xm: {
           blue: '#1E5BF0',
           cyan: '#00F2FE',
           dark: '#0B0E14',

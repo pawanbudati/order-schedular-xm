@@ -133,9 +133,9 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                                 : '0 ms'}
                             </span>
                           </div>
-                          {(order.xmOrderId || order.brokerOrderId || order.bingxOrderId) && (
+                          {(order.xmOrderId || order.brokerOrderId) && (
                             <div className="text-[10px] text-slate-500 truncate max-w-[140px]">
-                              Ticket #{order.xmOrderId || order.brokerOrderId || order.bingxOrderId}
+                              Ticket #{order.xmOrderId || order.brokerOrderId}
                             </div>
                           )}
                         </div>

@@ -1,6 +1,6 @@
-# BingX Order Scheduler - Frontend (GitHub Pages Deployable)
+# XM360 Order Scheduler - Frontend (GitHub Pages Deployable)
 
-Standalone React + TypeScript + Vite frontend for the BingX High-Precision Order Scheduler.
+Standalone React + TypeScript + Vite frontend for the XM360 High-Precision Order Scheduler.
 
 ## 🚀 GitHub Pages Deployment Steps
 
@@ -8,17 +8,17 @@ Standalone React + TypeScript + Vite frontend for the BingX High-Precision Order
    ```bash
    git init
    git add .
-   git commit -m "Deploy BingX Scheduler Frontend"
-   git remote add origin https://github.com/YOUR_USERNAME/bingx-scheduler-frontend.git
+   git commit -m "Deploy XM360 Scheduler Frontend"
+   git remote add origin https://github.com/pawanbudati/order-schedular-xm.git
    git push -u origin main
    ```
 
 2. **Deploy to GitHub Pages:**
    - Go to **Repository Settings** ➔ **Pages**.
-   - Under **Source**, select **GitHub Actions** or select branch `main` folder `/dist`.
-   - Build output will be served automatically at `https://YOUR_USERNAME.github.io/bingx-scheduler-frontend/`.
+   - Under **Source**, select **GitHub Actions**.
+   - Build output will be served automatically at `https://pawanbudati.github.io/bingx-scheduler-xm/`.
 
 3. **Connecting to your GCP VM Backend:**
    - In the deployed Web UI, click **API Settings** in the top right.
-   - Enter your GCP VM Backend URL in the **Backend API Server URL** field (e.g. `http://YOUR_GCP_VM_IP:3001/api` or `https://api.yourdomain.com/api`).
+   - Enter your GCP VM Backend URL in the **Backend API Server URL** field (e.g. `http://YOUR_GCP_VM_IP:3001/api`).
    - Click **Save**.

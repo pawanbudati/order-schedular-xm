@@ -54,7 +54,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     setOffsetSeconds(30);
   }, []);
 
-  // Auto-switch to Hedge Mode for Non-Crypto symbols (Gold/XAU-USDT requires Hedge mode on BingX API)
+  // Auto-switch to Hedge Mode for XM instruments (Gold XAUUSD / Forex pairs)
   useEffect(() => {
     if (selectedTicker) {
       const sym = selectedTicker.symbol.toUpperCase();
