@@ -11,7 +11,6 @@ interface ConfigModalProps {
     password?: string;
     serverName: string;
     platform: 'MT4' | 'MT5';
-    isDemo: boolean;
   }) => Promise<void>;
   currentHasKeys: boolean;
 }
@@ -22,7 +21,6 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
   const [password, setPassword] = useState<string>('');
   const [serverName, setServerName] = useState<string>('XMGlobal-Real 30');
   const [platform, setPlatform] = useState<'MT4' | 'MT5'>('MT5');
-  const [isDemo, setIsDemo] = useState<boolean>(true);
   const [backendUrl, setBackendUrlInput] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRestartingMt5, setIsRestartingMt5] = useState<boolean>(false);
@@ -41,7 +39,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
     setIsSaving(true);
     try {
       setBackendUrl(backendUrl);
-      await onSaveConfig({ apiToken, accountId, password, serverName, platform, isDemo });
+      await onSaveConfig({ apiToken, accountId, password, serverName, platform });
       setSuccessMsg(true);
       setTimeout(() => {
         setSuccessMsg(false);
@@ -59,7 +57,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
     try {
       // Save current credentials first if provided
       if (accountId || password) {
-        await onSaveConfig({ apiToken, accountId, password, serverName, platform, isDemo });
+        await onSaveConfig({ apiToken, accountId, password, serverName, platform });
       }
       const res = await api.restartMt5Bridge();
       alert(res.message || 'Headless MT5 Docker container restarted!');
@@ -91,22 +89,6 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Mode Selector */}
-          <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-            <label className="flex items-center justify-between cursor-pointer">
-              <div>
-                <span className="text-sm font-semibold text-slate-200">Demo / Simulation Mode</span>
-                <p className="text-xs text-slate-400">Test order execution without live XM broker risk</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={isDemo}
-                onChange={(e) => setIsDemo(e.target.checked)}
-                className="w-4 h-4 accent-cyan-400 rounded cursor-pointer"
-              />
-            </label>
-          </div>
-
           {/* Account ID & Platform Row */}
           <div className="grid grid-cols-2 gap-3">
             <div>

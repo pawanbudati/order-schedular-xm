@@ -63,17 +63,17 @@ export const Header: React.FC<HeaderProps> = ({ status, onOpenConfig, onOpenLogs
             )}
           </div>
 
-          {/* Mode Pill */}
+          {/* Account Status Pill */}
           <div className="flex items-center gap-2">
             {status?.hasApiKeys ? (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>API Keys Set ({status.isDemo ? 'Demo/VST' : 'Real Account'})</span>
+                <span>XM Account Connected ({status.accountId || 'Active'})</span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs font-medium">
                 <AlertCircle className="w-3.5 h-3.5" />
-                <span>Simulation Mode (No Keys)</span>
+                <span>No XM Account Connected</span>
               </div>
             )}
           </div>

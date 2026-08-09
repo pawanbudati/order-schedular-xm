@@ -33,14 +33,13 @@ export const api = {
       const res = await axios.get(`${getApiBase()}/status`, { timeout: 3000 });
       return res.data;
     } catch {
-      // Offline fallback status
       return {
+        status: 'offline',
         hasApiKeys: false,
-        isDemo: true,
         offsetMs: 0,
         serverTime: Date.now(),
         localTime: Date.now(),
-        serverName: 'XM (Offline Demo)',
+        serverName: 'XM (Offline)',
         platform: 'MT5',
       };
     }
@@ -52,13 +51,12 @@ export const api = {
     password?: string;
     serverName?: string;
     platform?: 'MT4' | 'MT5';
-    isDemo?: boolean;
   }) {
     try {
       const res = await axios.post(`${getApiBase()}/config`, config, { timeout: 3000 });
       return res.data;
     } catch {
-      return { success: true, message: 'Config saved locally (Offline Mode)' };
+      return { success: true, message: 'Config saved locally' };
     }
   },
 

@@ -141,7 +141,6 @@ export default function App() {
     password?: string;
     serverName: string;
     platform: 'MT4' | 'MT5';
-    isDemo: boolean;
   }) => {
     await api.updateConfig(config);
     await fetchStatus();
@@ -162,6 +161,25 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+        {/* No Account Prompt Banner */}
+        {status && !status.hasApiKeys && (
+          <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+              <div>
+                <h4 className="text-sm font-bold text-amber-300">No XM MetaTrader Account Connected</h4>
+                <p className="text-xs text-slate-300">Please connect your XM MT5 Account & credentials to enable live balance metrics and order execution.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsConfigOpen(true)}
+              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-bold shrink-0 transition-all shadow-lg shadow-cyan-500/20"
+            >
+              Connect XM Account
+            </button>
+          </div>
+        )}
+
         {/* Top Grid: Balance & Quick Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">

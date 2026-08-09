@@ -4,7 +4,6 @@ export interface SystemStatus {
   localTime: number;
   offsetMs: number;
   hasApiKeys: boolean;
-  isDemo: boolean;
   accountId?: string;
   serverName?: string;
   platform?: string;
