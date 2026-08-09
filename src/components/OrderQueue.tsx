@@ -8,6 +8,26 @@ interface OrderQueueProps {
   serverOffsetMs: number;
 }
 
+const formatIST = (ts: number): string => {
+  const date = new Date(ts);
+  const parts = new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+
+  const map: Record<string, string> = {};
+  parts.forEach(p => { map[p.type] = p.value; });
+  const ms = String(date.getMilliseconds()).padStart(3, '0');
+
+  return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}.${ms} IST`;
+};
+
 export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, serverOffsetMs }) => {
   const [nowMs, setNowMs] = useState<number>(Date.now() + serverOffsetMs);
 
@@ -58,7 +78,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
               <tr className="text-slate-400 border-b border-slate-800/80 font-medium">
                 <th className="py-3 px-3">Order Details</th>
                 <th className="py-3 px-3">Type / Leverage</th>
-                <th className="py-3 px-3">Scheduled Time (UTC)</th>
+                <th className="py-3 px-3">Scheduled Time (IST)</th>
                 <th className="py-3 px-3">Countdown / Precision</th>
                 <th className="py-3 px-3">Status</th>
                 <th className="py-3 px-3 text-right">Action</th>
@@ -71,6 +91,10 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                 const isCompleted = order.status === 'COMPLETED';
                 const isFailed = order.status === 'FAILED';
                 const isCancelled = order.status === 'CANCELLED';
+
+                const displayTargetTime = order.targetTimeFormatted && order.targetTimeFormatted.includes('IST')
+                  ? order.targetTimeFormatted
+                  : formatIST(order.targetTime);
 
                 return (
                   <tr key={order.id} className="hover:bg-slate-900/40 transition-all font-mono">
@@ -103,7 +127,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
 
                     {/* Target Time */}
                     <td className="py-3.5 px-3">
-                      <div className="text-cyan-300 font-semibold">{order.targetTimeFormatted}</div>
+                      <div className="text-cyan-300 font-semibold">{displayTargetTime}</div>
                       <div className="text-[10px] text-slate-500">ID: {order.id}</div>
                     </td>
 

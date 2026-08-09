@@ -50,7 +50,22 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose, logs, onR
             <div className="py-12 text-center text-slate-500">No logs recorded yet.</div>
           ) : (
             logs.map((log) => {
-              const dateStr = new Date(log.timestamp).toISOString().replace('T', ' ').replace('Z', ' UTC');
+              const date = new Date(log.timestamp);
+              const parts = new Intl.DateTimeFormat('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+              }).formatToParts(date);
+              const map: Record<string, string> = {};
+              parts.forEach(p => { map[p.type] = p.value; });
+              const ms = String(date.getMilliseconds()).padStart(3, '0');
+              const dateStr = `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}.${ms} IST`;
+
               return (
                 <div
                   key={log.id}

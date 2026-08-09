@@ -69,21 +69,26 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     return side === 'BUY' ? 'LONG' : 'SHORT';
   };
 
-  // Set target date/time relative to now
+  // Set target date/time relative to now in IST timezone
   const setOffsetSeconds = (secondsToAdd: number) => {
     const future = new Date(Date.now() + secondsToAdd * 1000);
-    const yyyy = future.getFullYear();
-    const mm = String(future.getMonth() + 1).padStart(2, '0');
-    const dd = String(future.getDate()).padStart(2, '0');
+    const parts = new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).formatToParts(future);
 
-    const hh = String(future.getHours()).padStart(2, '0');
-    const min = String(future.getMinutes()).padStart(2, '0');
-    const ss = String(future.getSeconds()).padStart(2, '0');
-    const ms = String(future.getMilliseconds()).padStart(3, '0');
+    const map: Record<string, string> = {};
+    parts.forEach(p => { map[p.type] = p.value; });
 
-    setTargetDate(`${yyyy}-${mm}-${dd}`);
-    setTargetTimeStr(`${hh}:${min}:${ss}`);
-    setTargetMsStr(ms);
+    setTargetDate(`${map.year}-${map.month}-${map.day}`);
+    setTargetTimeStr(`${map.hour}:${map.minute}:${map.second}`);
+    setTargetMsStr(String(future.getMilliseconds()).padStart(3, '0'));
   };
 
   const getComputedTargetTimestamp = (): number | null => {

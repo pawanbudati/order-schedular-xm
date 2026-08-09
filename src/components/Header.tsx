@@ -9,17 +9,21 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ status, onOpenConfig, onOpenLogs }) => {
-  const [currentUtc, setCurrentUtc] = useState<string>('');
+  const [currentIst, setCurrentIst] = useState<string>('');
 
   useEffect(() => {
     const timer = setInterval(() => {
       const offset = status?.offsetMs || 0;
       const now = new Date(Date.now() + offset);
-      const hours = String(now.getUTCHours()).padStart(2, '0');
-      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
-      const ms = String(now.getUTCMilliseconds()).padStart(3, '0');
-      setCurrentUtc(`${hours}:${minutes}:${seconds}.${ms} UTC`);
+      const timeStr = now.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+      const ms = String(now.getMilliseconds()).padStart(3, '0');
+      setCurrentIst(`${timeStr}.${ms} IST`);
     }, 45); // Update fast for millisecond tick
 
     return () => clearInterval(timer);
@@ -51,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ status, onOpenConfig, onOpenLogs
           {/* Clock Sync Display */}
           <div className="flex items-center gap-2 bg-slate-900/80 px-3.5 py-1.5 rounded-lg border border-slate-800 font-mono text-sm">
             <Clock className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span className="text-cyan-300 font-semibold">{currentUtc || 'Syncing...'}</span>
+            <span className="text-cyan-300 font-semibold">{currentIst || 'Syncing...'}</span>
             {status && (
               <span className="text-[11px] text-slate-400 border-l border-slate-700 pl-2">
                 Offset: <span className={Math.abs(status.offsetMs) < 50 ? 'text-emerald-400' : 'text-amber-400'}>{status.offsetMs > 0 ? `+${status.offsetMs}` : status.offsetMs}ms</span>
