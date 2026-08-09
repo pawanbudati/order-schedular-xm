@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { Header } from './components/Header';
 import { BalanceCard } from './components/BalanceCard';
 import { OrderForm } from './components/OrderForm';

@@ -72,18 +72,9 @@ export const api = {
   async getBalance(): Promise<AccountBalance> {
     try {
       const res = await axios.get(`${getApiBase()}/balance`, { timeout: 3000 });
-      return res.data.data;
+      return res.data?.data || { asset: 'USD', balance: 0, equity: 0, availableMargin: 0, usedMargin: 0 };
     } catch {
-      // Offline fallback balance
-      return {
-        totalEquity: 5000.0,
-        availableMargin: 5000.0,
-        usedMargin: 0.0,
-        freeMargin: 5000.0,
-        marginLevel: 1000.0,
-        unrealizedPnl: 0.0,
-        currency: 'USD',
-      };
+      return { asset: 'USD', balance: 0, equity: 0, availableMargin: 0, usedMargin: 0 };
     }
   },
 
