@@ -60,8 +60,6 @@ export const api = {
     }
   },
 
-  },
-
   async getBalance(): Promise<AccountBalance> {
     try {
       const res = await axios.get(`${getApiBase()}/balance`, { timeout: 3000 });
