@@ -130,11 +130,19 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                       </div>
                     )}
                     {isFailed && (
-                      <div className="text-rose-400 font-semibold flex items-center gap-1">
-                        <XCircle className="w-3.5 h-3.5" />
-                        <span>Failed</span>
+                      <div className="flex flex-col gap-1 w-full text-rose-400 font-semibold">
+                        <div className="flex items-center gap-1">
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>Failed</span>
+                        </div>
+                        {order.errorMessage && (
+                          <div className="text-[11px] font-normal text-rose-300 bg-rose-950/60 border border-rose-800/50 p-2 rounded-lg break-words font-mono">
+                            {order.errorMessage}
+                          </div>
+                        )}
                       </div>
                     )}
+
                     {isCancelled && (
                       <span className="text-slate-500">Cancelled</span>
                     )}
@@ -262,13 +270,19 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                         </span>
                       )}
                       {isFailed && (
-                        <div title={order.errorMessage || 'Execution Failed'}>
+                        <div className="flex flex-col gap-1 max-w-[240px]">
                           <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1 w-fit">
-                            <XCircle className="w-3 h-3" />
+                            <XCircle className="w-3 h-3 shrink-0" />
                             <span>FAILED</span>
                           </span>
+                          {order.errorMessage && (
+                            <div className="text-[10px] text-rose-300 bg-rose-950/60 border border-rose-800/50 px-2 py-1 rounded-lg break-words font-mono leading-tight">
+                              {order.errorMessage}
+                            </div>
+                          )}
                         </div>
                       )}
+
                       {isCancelled && (
                         <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
                           CANCELLED
