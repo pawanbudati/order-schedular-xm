@@ -52,12 +52,18 @@ export default function App() {
       const data = await api.getPairs();
       setTickers(data);
       if (!selectedTicker && data.length > 0) {
-        setSelectedTicker(data[0]);
+        // Find Gold symbol (XAUUSD, GOLD, GOLD.i#, etc.) as default
+        const goldTicker = data.find(t => 
+          t.symbol.toUpperCase().includes('XAU') || 
+          t.symbol.toUpperCase().includes('GOLD')
+        );
+        setSelectedTicker(goldTicker || data[0]);
       }
     } catch (err) {
       console.warn('Failed to fetch pairs:', err);
     }
   }, [selectedTicker]);
+
 
   // Load orders queue
   const fetchOrders = useCallback(async () => {
