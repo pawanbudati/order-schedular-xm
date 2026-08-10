@@ -7,10 +7,22 @@ let localLogsQueue: ExecutionLog[] = [];
 
 export const getBackendUrl = (): string => {
   const customUrl = localStorage.getItem('XM360_BACKEND_URL');
-  if (customUrl) return customUrl.replace(/\/$/, '');
-  const envUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL;
-  if (envUrl) return envUrl.replace(/\/$/, '');
-  return 'http://localhost:8444/api';
+  if (customUrl) {
+    let formatted = customUrl.trim().replace(/\/$/, '');
+    if (!formatted.endsWith('/api')) {
+      formatted = `${formatted}/api`;
+    }
+    return formatted;
+  }
+  const envUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    let formatted = envUrl.trim().replace(/\/$/, '');
+    if (!formatted.endsWith('/api')) {
+      formatted = `${formatted}/api`;
+    }
+    return formatted;
+  }
+  return 'https://xml-stockings-plates-zshops.trycloudflare.com/api';
 };
 
 export const setBackendUrl = (url: string): void => {
@@ -23,7 +35,9 @@ export const setBackendUrl = (url: string): void => {
     }
     localStorage.setItem('XM360_BACKEND_URL', formatted);
   }
+  window.dispatchEvent(new Event('storage'));
 };
+
 
 const getApiBase = (): string => getBackendUrl();
 

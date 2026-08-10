@@ -85,7 +85,9 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
       setTimeout(() => {
         setSuccessMsg(false);
         onClose();
-      }, 1000);
+        window.location.reload();
+      }, 500);
+
     } catch (err) {
       console.error(err);
     } finally {
