@@ -18,7 +18,8 @@ Standalone React + TypeScript + Vite frontend for the XM360 High-Precision Order
    - Under **Source**, select **GitHub Actions**.
    - Build output will be served automatically at `https://pawanbudati.github.io/bingx-scheduler-xm/`.
 
-3. **Connecting to your GCP VM Backend:**
+3. **Connecting to your AWS Windows VM Backend:**
    - In the deployed Web UI, click **API Settings** in the top right.
-   - Enter your GCP VM Backend URL in the **Backend API Server URL** field (e.g. `http://YOUR_GCP_VM_IP:3001/api`).
+   - Enter your AWS Windows VM Backend URL in the **Backend API Server URL** field (e.g. `http://YOUR_AWS_WINDOWS_VM_IP:8444/api`).
    - Click **Save**.
+
