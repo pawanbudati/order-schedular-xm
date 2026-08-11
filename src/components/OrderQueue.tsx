@@ -250,12 +250,13 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({
                         <div className="text-emerald-400 dark:text-emerald-400 light:text-emerald-700 font-bold flex items-center justify-between text-[11px]">
                           <span className="flex items-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>FILLED SUCCESS</span>
+                            <span>{order.isMock ? 'FILLED (GUEST MOCK)' : 'FILLED SUCCESS'}</span>
                           </span>
                           <span className="bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 rounded-md">
                             Drift: {order.precisionDriftMs !== undefined ? `${order.precisionDriftMs > 0 ? '+' : ''}${order.precisionDriftMs} ms` : '0 ms'}
                           </span>
                         </div>
+
                         {(order.xmOrderId || order.brokerOrderId) && (
                           <div className="text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-600 font-mono">
                             MT5 Order Ticket: <span className="text-slate-200 dark:text-slate-200 light:text-slate-800 font-bold">#{order.xmOrderId || order.brokerOrderId}</span>

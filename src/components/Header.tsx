@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Clock, Terminal, Key, Zap, CheckCircle2, AlertCircle, Sun, Moon, Lock } from 'lucide-react';
+import { Shield, Clock, Terminal, Key, Zap, CheckCircle2, AlertCircle, Sun, Moon, Lock, ShieldCheck, Eye } from 'lucide-react';
 import { SystemStatus } from '../types';
 
 interface HeaderProps {
   status: SystemStatus | null;
   theme: 'dark' | 'light';
+  userRole: 'ADMIN' | 'GUEST';
   onToggleTheme: () => void;
   onOpenConfig: () => void;
   onOpenLogs: () => void;
@@ -14,6 +15,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   status,
   theme,
+  userRole,
   onToggleTheme,
   onOpenConfig,
   onOpenLogs,
@@ -64,8 +66,8 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1.5 md:hidden">
             <button
               onClick={onLock}
-              title="Lock Terminal"
-              aria-label="Lock Terminal"
+              title={userRole === 'ADMIN' ? 'Switch Role / Lock' : 'Unlock Admin Mode'}
+              aria-label="Lock / Switch Role"
               className="p-1.5 rounded-lg bg-slate-800/80 dark:bg-slate-800 light:bg-slate-100 text-cyan-400 hover:bg-slate-700 border border-slate-700 dark:border-slate-700 light:border-slate-300 transition-all"
             >
               <Lock className="w-4 h-4 text-cyan-400 dark:text-cyan-400 light:text-cyan-600" />
@@ -101,6 +103,27 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
+          {/* User Role Pill */}
+          <div className="flex items-center gap-1">
+            {userRole === 'ADMIN' ? (
+              <div
+                title="Admin Mode: Live MT5 Order Execution Enabled"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-cyan-500/10 dark:bg-cyan-500/10 light:bg-cyan-100 text-cyan-400 dark:text-cyan-400 light:text-cyan-700 border border-cyan-500/30 light:border-cyan-300 text-[11px] font-bold"
+              >
+                <ShieldCheck className="w-3 h-3 shrink-0 text-cyan-400" />
+                <span>Admin</span>
+              </div>
+            ) : (
+              <div
+                title="Guest Mode: Sandbox Demo Mode (Orders do not execute on MT5)"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/10 light:bg-amber-100 text-amber-400 dark:text-amber-400 light:text-amber-700 border border-amber-500/30 light:border-amber-300 text-[11px] font-bold"
+              >
+                <Eye className="w-3 h-3 shrink-0 text-amber-400" />
+                <span>Guest (Demo Sandbox)</span>
+              </div>
+            )}
+          </div>
+
           {/* Account Status Pill */}
           <div className="flex items-center gap-1">
             {status?.hasApiKeys ? (
@@ -120,11 +143,11 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="hidden md:flex items-center gap-2">
             <button
               onClick={onLock}
-              title="Lock Terminal"
+              title={userRole === 'ADMIN' ? 'Lock / Switch to Guest' : 'Unlock Admin Mode'}
               className="p-1.5 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 text-cyan-400 dark:text-cyan-400 light:text-cyan-600 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-200 border border-slate-800 dark:border-slate-800 light:border-slate-300 transition-all shadow-sm flex items-center gap-1 text-xs font-semibold px-2.5"
             >
               <Lock className="w-3.5 h-3.5 shrink-0" />
-              <span>Lock</span>
+              <span>{userRole === 'ADMIN' ? 'Lock' : 'Login Admin'}</span>
             </button>
 
             <button

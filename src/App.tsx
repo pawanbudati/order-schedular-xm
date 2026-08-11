@@ -16,6 +16,11 @@ export default function App() {
     return (saved as 'dark' | 'light') || 'dark';
   });
 
+  const [userRole, setUserRole] = useState<'ADMIN' | 'GUEST'>(() => {
+    const savedRole = sessionStorage.getItem('XM360_USER_ROLE');
+    return (savedRole as 'ADMIN' | 'GUEST') || 'GUEST';
+  });
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return sessionStorage.getItem('XM360_IS_AUTHENTICATED') === 'true';
   });
@@ -50,14 +55,23 @@ export default function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const handleAuthenticate = (enteredPin: string): boolean => {
+  const handleAuthenticateAdmin = (enteredPin: string): boolean => {
     const savedPin = localStorage.getItem('XM360_PASSCODE') || '1234';
     if (enteredPin === savedPin) {
+      setUserRole('ADMIN');
       setIsAuthenticated(true);
+      sessionStorage.setItem('XM360_USER_ROLE', 'ADMIN');
       sessionStorage.setItem('XM360_IS_AUTHENTICATED', 'true');
       return true;
     }
     return false;
+  };
+
+  const handleGuestAccess = () => {
+    setUserRole('GUEST');
+    setIsAuthenticated(true);
+    sessionStorage.setItem('XM360_USER_ROLE', 'GUEST');
+    sessionStorage.setItem('XM360_IS_AUTHENTICATED', 'true');
   };
 
   const handleLockScreen = () => {
@@ -86,7 +100,6 @@ export default function App() {
     } finally {
       setIsBalanceLoading(false);
     }
-
   }, []);
 
   // Load tickers
@@ -178,7 +191,56 @@ export default function App() {
     quantity: number;
     leverage: number;
     targetTime: number;
+    stopLoss?: number;
+    takeProfit?: number;
   }) => {
+    if (userRole === 'GUEST') {
+      // Create local GUEST sandbox mock order
+      const mockOrder: ScheduledOrder = {
+        id: `MOCK-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        symbol: orderData.symbol,
+        side: orderData.side,
+        positionSide: orderData.positionSide || 'BOTH',
+        type: orderData.type,
+        quantity: orderData.quantity,
+        price: orderData.price,
+        leverage: orderData.leverage,
+        targetTime: orderData.targetTime,
+        targetTimeFormatted: `${new Date(orderData.targetTime).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false })}.${String(new Date(orderData.targetTime).getMilliseconds()).padStart(3, '0')} IST`,
+        status: 'PENDING',
+        createdAt: Date.now(),
+        stopLoss: orderData.stopLoss,
+        takeProfit: orderData.takeProfit,
+        isMock: true,
+        xmOrderId: 'GUEST-MOCK-TICKET',
+      };
+
+      setOrders((prev) => [mockOrder, ...prev]);
+
+      // Set simulated completion timer for Guest Mock Order
+      const delay = Math.max(0, orderData.targetTime - Date.now());
+      setTimeout(() => {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === mockOrder.id
+              ? {
+                  ...o,
+                  status: 'COMPLETED',
+                  precisionDriftMs: Math.floor(Math.random() * 4),
+                  actualTime: Date.now(),
+                }
+              : o
+          )
+        );
+      }, delay);
+
+      alert(
+        `📌 GUEST DEMO MODE:\nOrder scheduled as a sandbox simulation.\n\nSince you are in Guest Mode, this order will NOT be executed on live MT5.\n\nTo place live MT5 orders, unlock Admin mode with PIN 1234.`
+      );
+      return;
+    }
+
+    // ADMIN MODE: Live MT5 Order Placement
     await api.scheduleOrder(orderData);
     await fetchOrders();
   };
@@ -209,6 +271,10 @@ export default function App() {
     serverName: string;
     platform: 'MT4' | 'MT5';
   }) => {
+    if (userRole === 'GUEST') {
+      alert('🔒 Guest Mode: Admin PIN required to modify live MT5 configuration.');
+      return;
+    }
     await api.updateConfig(config);
     await fetchStatus();
     await fetchBalance();
@@ -216,16 +282,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 dark:bg-slate-950 light:bg-slate-50 text-slate-100 dark:text-slate-100 light:text-slate-900 transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
-      {/* Passcode Security Lock Screen Modal */}
+      {/* Passcode Security & Role Access Lock Modal */}
       <PasscodeModal
         isAuthenticated={isAuthenticated}
-        onAuthenticate={handleAuthenticate}
+        onAuthenticateAdmin={handleAuthenticateAdmin}
+        onGuestAccess={handleGuestAccess}
       />
 
       {/* Header */}
       <Header
         status={status}
         theme={theme}
+        userRole={userRole}
         onToggleTheme={toggleTheme}
         onOpenConfig={() => setIsConfigOpen(true)}
         onOpenLogs={() => setIsLogsOpen(true)}
@@ -264,6 +332,7 @@ export default function App() {
           {/* Order Form (5 cols) */}
           <div id="schedule-order-section" className="lg:col-span-5 scroll-mt-4">
             <OrderForm
+              userRole={userRole}
               tickers={tickers}
               selectedTicker={selectedTicker}
               onSelectTicker={setSelectedTicker}

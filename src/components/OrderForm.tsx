@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, DollarSign, Layers, Send, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, DollarSign, Layers, Send, TrendingUp, TrendingDown, AlertCircle, Eye, ShieldCheck } from 'lucide-react';
 import { Ticker } from '../types';
 
 interface OrderFormProps {
+  userRole: 'ADMIN' | 'GUEST';
   tickers: Ticker[];
   selectedTicker: Ticker | null;
   onSelectTicker: (ticker: Ticker) => void;
@@ -25,9 +26,11 @@ interface OrderFormProps {
 }
 
 export const OrderForm: React.FC<OrderFormProps> = ({
+  userRole,
   tickers,
   selectedTicker,
   onSelectTicker,
+
   quantity,
   setQuantity,
   leverage,
@@ -180,8 +183,16 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             <span>SELL</span>
           </button>
         </div>
-
       </div>
+
+      {userRole === 'GUEST' && (
+        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 dark:text-amber-400 light:text-amber-700 text-xs flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 shrink-0 text-amber-400" />
+            <span><strong>Guest Sandbox Mode:</strong> Orders are simulated locally (no live MT5 trades placed).</span>
+          </div>
+        </div>
+      )}
 
       {errorMsg && (
         <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 dark:text-rose-400 light:text-rose-600 text-xs flex items-center gap-2 animate-shake">

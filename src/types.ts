@@ -56,7 +56,9 @@ export interface ScheduledOrder {
   createdAt: number;
   stopLoss?: number;
   takeProfit?: number;
+  isMock?: boolean;
 }
+
 
 export interface ExecutionLog {
   id: string;
