@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Key, ShieldCheck, Server, Check, Lock } from 'lucide-react';
+import { X, Key, Server, Check, ShieldCheck } from 'lucide-react';
 import { setBackendUrl } from '../services/api';
 
 interface ConfigModalProps {
@@ -16,7 +16,6 @@ interface ConfigModalProps {
 
 export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSaveConfig }) => {
   const [backendUrlInput, setBackendUrlInput] = useState<string>('');
-  const [passcode, setPasscode] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
 
@@ -24,7 +23,6 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
     if (isOpen) {
       const savedCustom = localStorage.getItem('XM360_BACKEND_URL');
       setBackendUrlInput(savedCustom || '');
-      setPasscode(localStorage.getItem('XM360_PASSCODE') || '');
     }
   }, [isOpen]);
 
@@ -35,7 +33,6 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
     setIsSaving(true);
     try {
       setBackendUrl(backendUrlInput);
-      if (passcode) localStorage.setItem('XM360_PASSCODE', passcode);
 
       await onSaveConfig({
         apiToken: 'LOCAL',
@@ -50,7 +47,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
         onClose();
       }, 1000);
     } catch (err) {
-      console.error('Failed to save config:', err);
+      console.error('Failed to save backend URL config:', err);
     } finally {
       setIsSaving(false);
     }
@@ -63,11 +60,11 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-4">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-blue-100 dark:bg-cyan-500/10 border border-blue-300 dark:border-cyan-500/20 text-blue-700 dark:text-cyan-400">
-              <Key className="w-5 h-5" />
+              <Server className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100">XM Terminal Settings</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Configure security & API endpoint</p>
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100">Backend API Target Settings</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Configure target backend instance URL</p>
             </div>
           </div>
           <button
@@ -79,46 +76,31 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Security Terminal Passcode (PIN) */}
-          <div>
-            <label className="block text-xs font-bold text-slate-900 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-blue-700 dark:text-cyan-400" />
-                <span>Backend Admin Password / PIN</span>
-              </span>
-              <span className="text-[10px] text-slate-500 font-mono">Env: ADMIN_PASSWORD</span>
-            </label>
-            <input
-              type="password"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Enter Admin PIN"
-              className="w-full bg-white dark:bg-slate-900/90 border border-slate-400 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-blue-800 dark:text-cyan-400 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-500"
-            />
-          </div>
-
           {/* Backend Server URL */}
           <div>
             <label className="block text-xs font-bold text-slate-900 dark:text-slate-300 mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <Server className="w-3.5 h-3.5 text-blue-700 dark:text-cyan-400" />
-                <span>Backend API Server URL (Client Override)</span>
+                <span>Backend API Instance URL</span>
               </span>
             </label>
             <input
               type="text"
               value={backendUrlInput}
               onChange={(e) => setBackendUrlInput(e.target.value)}
-              placeholder="Default: https://order-schedular.duckdns.org"
+              placeholder="e.g. https://order-schedular.duckdns.org"
               className="w-full bg-white dark:bg-slate-900/90 border border-slate-400 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-500"
             />
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Leave blank to use default (<code>https://order-schedular.duckdns.org</code>). Changing this connects this client instance to your specified backend server.
+            </p>
           </div>
 
-          {/* Automatic MT5 Connection Banner */}
+          {/* Banner */}
           <div className="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-300 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-300 flex items-start gap-2.5 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              Orders attach directly to your active MetaTrader 5 desktop application. No MT5 credentials or login tokens are required or stored.
+              Admin Password authentication is managed securely on the target backend via environment variable (<code>ADMIN_PASSWORD</code>).
             </span>
           </div>
 
@@ -139,10 +121,10 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
               {successMsg ? (
                 <>
                   <Check className="w-4 h-4" />
-                  <span>Saved!</span>
+                  <span>Saved Target!</span>
                 </>
               ) : (
-                <span>Save Settings</span>
+                <span>Save Backend URL</span>
               )}
             </button>
           </div>
