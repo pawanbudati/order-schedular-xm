@@ -29,7 +29,8 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
 
   useEffect(() => {
     if (isOpen) {
-      setBackendUrlInput(getBackendUrl());
+      const savedCustom = localStorage.getItem('XM360_BACKEND_URL');
+      setBackendUrlInput(savedCustom || '');
       setApiToken(localStorage.getItem('XM360_API_TOKEN') || 'LOCAL');
       setAccountId(localStorage.getItem('XM360_ACCOUNT_ID') || '');
       setPassword(localStorage.getItem('XM360_PASSWORD') || '');
@@ -38,6 +39,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
       setConnectMsg(null);
     }
   }, [isOpen]);
+
 
   if (!isOpen) return null;
 
@@ -182,18 +184,19 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
             <label className="block text-xs font-medium text-slate-400 mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1">
                 <Server className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Backend API Server URL</span>
+                <span>Backend API Server URL (Client Override)</span>
               </span>
-              <span className="text-[10px] text-slate-500">Default: http://localhost:8444/api</span>
+              <span className="text-[10px] text-slate-500">Default: https://order-schedular.duckdns.org</span>
             </label>
             <input
               type="text"
               value={backendUrl}
               onChange={(e) => setBackendUrlInput(e.target.value)}
-              placeholder="e.g. https://neo-copier.duckdns.org/xm-api"
+              placeholder="Leave blank to use default (https://order-schedular.duckdns.org)"
               className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-cyan-300 focus:outline-none focus:border-cyan-500"
             />
           </div>
+
 
 
 
