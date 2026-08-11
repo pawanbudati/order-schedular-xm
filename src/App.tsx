@@ -280,7 +280,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 dark:bg-slate-950 light:bg-slate-50 text-slate-100 dark:text-slate-100 light:text-slate-900 transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500 selection:text-white dark:selection:text-slate-950">
       {/* Passcode Security & Role Access Lock Modal */}
       <PasscodeModal
         isAuthenticated={isAuthenticated}
@@ -302,15 +302,15 @@ export default function App() {
       {/* Main Body Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-2.5 sm:p-5 md:p-6 space-y-3 sm:space-y-5">
         {/* Ultra-Compact Top Engine Status Bar */}
-        <div className="glass-panel px-3 py-2 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-wrap items-center justify-between text-xs gap-2 shadow-sm">
+        <div className="glass-panel px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center justify-between text-xs gap-2 shadow-sm">
           <div className="flex items-center gap-2">
-            <Zap className="w-3.5 h-3.5 text-cyan-400 fill-current" />
-            <span className="font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 text-[11px] sm:text-xs">XM 1ms Spin-Lock Active</span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500 hidden sm:inline">| {status?.serverName || 'XMGlobal-Real'}</span>
+            <Zap className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 fill-current" />
+            <span className="font-bold text-slate-900 dark:text-slate-100 text-[11px] sm:text-xs">XM 1ms Spin-Lock Active</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:inline">| {status?.serverName || 'XMGlobal-Real'}</span>
           </div>
           <div className="flex items-center gap-3 font-mono text-[11px]">
-            <span className="text-slate-400 dark:text-slate-400 light:text-slate-600">Sync: <strong className="text-cyan-400 dark:text-cyan-400 light:text-cyan-600">{status ? (status.offsetMs > 0 ? `+${status.offsetMs}` : `${status.offsetMs}`) : '0'} ms</strong></span>
-            <span className="text-slate-400 dark:text-slate-400 light:text-slate-600">Pending: <strong className="text-amber-400 dark:text-amber-400 light:text-amber-600">{orders.filter((o) => o.status === 'PENDING').length}</strong></span>
+            <span className="text-slate-600 dark:text-slate-400">Sync: <strong className="text-cyan-700 dark:text-cyan-400">{status ? (status.offsetMs > 0 ? `+${status.offsetMs}` : `${status.offsetMs}`) : '0'} ms</strong></span>
+            <span className="text-slate-600 dark:text-slate-400">Pending: <strong className="text-amber-700 dark:text-amber-400">{orders.filter((o) => o.status === 'PENDING').length}</strong></span>
           </div>
         </div>
 
