@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Key, ShieldCheck, Server, Check, RefreshCw, Lock } from 'lucide-react';
-import { api, getBackendUrl, setBackendUrl } from '../services/api';
+import { X, Key, ShieldCheck, Server, Check, Lock } from 'lucide-react';
+import { setBackendUrl } from '../services/api';
 
 interface ConfigModalProps {
   isOpen: boolean;
@@ -14,73 +14,35 @@ interface ConfigModalProps {
   currentHasKeys: boolean;
 }
 
-export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSaveConfig, currentHasKeys }) => {
-  const [apiToken, setApiToken] = useState<string>('');
-  const [accountId, setAccountId] = useState<string>('');
-  const [serverName, setServerName] = useState<string>('XMGlobal-Real 30');
-  const [platform, setPlatform] = useState<'MT4' | 'MT5'>('MT5');
+export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSaveConfig }) => {
   const [backendUrlInput, setBackendUrlInput] = useState<string>('');
-  const [passcode, setPasscode] = useState<string>('1234');
+  const [passcode, setPasscode] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isConnecting, setIsConnecting] = useState<boolean>(false);
-  const [connectMsg, setConnectMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
       const savedCustom = localStorage.getItem('XM360_BACKEND_URL');
       setBackendUrlInput(savedCustom || '');
-      setApiToken(localStorage.getItem('XM360_API_TOKEN') || 'LOCAL');
-      setAccountId(localStorage.getItem('XM360_ACCOUNT_ID') || '');
-      setServerName(localStorage.getItem('XM360_SERVER_NAME') || 'XMGlobal-Real 30');
-      setPlatform((localStorage.getItem('XM360_PLATFORM') as 'MT4' | 'MT5') || 'MT5');
-      setPasscode(localStorage.getItem('XM360_PASSCODE') || '1234');
-      setConnectMsg(null);
+      setPasscode(localStorage.getItem('XM360_PASSCODE') || '');
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
-
-  const handleConnectBridge = async () => {
-    setIsConnecting(true);
-    setConnectMsg(null);
-    try {
-      setBackendUrl(backendUrlInput);
-      localStorage.setItem('XM360_PASSCODE', passcode || '1234');
-      localStorage.setItem('XM360_API_TOKEN', apiToken || 'LOCAL');
-      if (accountId) localStorage.setItem('XM360_ACCOUNT_ID', accountId);
-      if (serverName) localStorage.setItem('XM360_SERVER_NAME', serverName);
-      if (platform) localStorage.setItem('XM360_PLATFORM', platform);
-
-      // Save config first
-      await onSaveConfig({ apiToken, accountId, serverName, platform });
-
-      // Trigger manual bridge connection
-      const res = await api.connectMt5Bridge();
-      if (res.success) {
-        setConnectMsg({ type: 'success', text: res.message });
-      } else {
-        setConnectMsg({ type: 'error', text: res.message });
-      }
-    } catch (err: any) {
-      setConnectMsg({ type: 'error', text: err.message || 'Failed to connect to MT5 Bridge' });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
       setBackendUrl(backendUrlInput);
-      localStorage.setItem('XM360_PASSCODE', passcode || '1234');
-      localStorage.setItem('XM360_API_TOKEN', apiToken || 'LOCAL');
-      if (accountId) localStorage.setItem('XM360_ACCOUNT_ID', accountId);
-      if (serverName) localStorage.setItem('XM360_SERVER_NAME', serverName);
-      if (platform) localStorage.setItem('XM360_PLATFORM', platform);
+      if (passcode) localStorage.setItem('XM360_PASSCODE', passcode);
 
-      await onSaveConfig({ apiToken, accountId, serverName, platform });
+      await onSaveConfig({
+        apiToken: 'LOCAL',
+        accountId: '',
+        serverName: 'XMGlobal-Real',
+        platform: 'MT5',
+      });
 
       setSuccessMsg(true);
       setTimeout(() => {
@@ -96,21 +58,21 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <div className="w-full max-w-lg glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-md glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl relative">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-300 dark:border-cyan-500/20 text-cyan-700 dark:text-cyan-400">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-blue-100 dark:bg-cyan-500/10 border border-blue-300 dark:border-cyan-500/20 text-blue-700 dark:text-cyan-400">
               <Key className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">XM Terminal Settings</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Configure connection & security options</p>
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100">XM Terminal Settings</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Configure security & API endpoint</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -119,130 +81,60 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Security Terminal Passcode (PIN) */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1">
-                <Lock className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />
+            <label className="block text-xs font-bold text-slate-900 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-blue-700 dark:text-cyan-400" />
                 <span>Backend Admin Password / PIN</span>
               </span>
-              <span className="text-[10px] text-slate-500">Env: ADMIN_PASSWORD</span>
+              <span className="text-[10px] text-slate-500 font-mono">Env: ADMIN_PASSWORD</span>
             </label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Admin PIN"
-              className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-cyan-700 dark:text-cyan-400 focus:outline-none focus:border-cyan-500"
-            />
-          </div>
-
-          {/* Platform & Server Info */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Platform</label>
-              <select
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value as 'MT4' | 'MT5')}
-                className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
-              >
-                <option value="MT5">MetaTrader 5 (MT5)</option>
-                <option value="MT4">MetaTrader 4 (MT4)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Server Name (Display)</label>
-              <input
-                type="text"
-                value={serverName}
-                onChange={(e) => setServerName(e.target.value)}
-                placeholder="XMGlobal-Real 30"
-                className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
-              />
-            </div>
-          </div>
-
-          {/* API Token */}
-          <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">MetaApi / Local Auth Token</label>
-            <input
-              type="password"
-              value={apiToken}
-              onChange={(e) => setApiToken(e.target.value)}
-              placeholder={currentHasKeys ? "••••••••••••••••••••••••" : "Paste MetaApi Access Token or enter LOCAL"}
-              className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
+              placeholder="Enter Admin PIN"
+              className="w-full bg-white dark:bg-slate-900/90 border border-slate-400 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-blue-800 dark:text-cyan-400 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-500"
             />
           </div>
 
           {/* Backend Server URL */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1">
-                <Server className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />
+            <label className="block text-xs font-bold text-slate-900 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Server className="w-3.5 h-3.5 text-blue-700 dark:text-cyan-400" />
                 <span>Backend API Server URL (Client Override)</span>
               </span>
-              <span className="text-[10px] text-slate-500">Default: https://order-schedular.duckdns.org</span>
             </label>
             <input
               type="text"
               value={backendUrlInput}
               onChange={(e) => setBackendUrlInput(e.target.value)}
-              placeholder="Leave blank to use default (https://order-schedular.duckdns.org)"
-              className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-cyan-700 dark:text-cyan-300 focus:outline-none focus:border-cyan-500"
+              placeholder="Default: https://order-schedular.duckdns.org"
+              className="w-full bg-white dark:bg-slate-900/90 border border-slate-400 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-500"
             />
           </div>
 
-          {/* Manual MT5 Connection Trigger Box */}
-          <div className="bg-slate-50 dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${isConnecting ? 'bg-amber-500 animate-ping' : 'bg-cyan-500 animate-pulse'}`} />
-                <div>
-                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-200">MT5 Local Execution Bridge</span>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400">Attach to active MT5 terminal running on your computer / VM</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleConnectBridge}
-                disabled={isConnecting}
-                className="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border border-cyan-300 dark:border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isConnecting ? 'animate-spin' : ''}`} />
-                <span>{isConnecting ? 'Connecting...' : 'Connect to MT5'}</span>
-              </button>
-            </div>
-
-            {connectMsg && (
-              <div className={`p-2.5 rounded-lg text-xs font-medium border flex items-start gap-2 ${
-                connectMsg.type === 'success'
-                  ? 'bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
-                  : 'bg-rose-500/10 border-rose-300 dark:border-rose-500/30 text-rose-700 dark:text-rose-400'
-              }`}>
-                <span>{connectMsg.text}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
+          {/* Automatic MT5 Connection Banner */}
+          <div className="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-300 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-300 flex items-start gap-2.5 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              Orders execute directly on your active MetaTrader 5 terminal application. No account passwords are needed or stored.
+              Orders attach directly to your active MetaTrader 5 desktop application. No MT5 credentials or login tokens are required or stored.
             </span>
           </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-2.5 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-5 py-2 rounded-xl text-xs font-bold bg-cyan-600 dark:bg-cyan-500 hover:bg-cyan-700 dark:hover:bg-cyan-400 text-white dark:text-slate-950 shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl text-xs font-extrabold bg-blue-600 dark:bg-cyan-500 hover:bg-blue-700 dark:hover:bg-cyan-400 text-white dark:text-slate-950 shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               {successMsg ? (
                 <>
