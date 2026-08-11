@@ -314,10 +314,10 @@ export default function App() {
           </div>
         </div>
 
-        {/* Top Row Grid: Balance Card & Order Form (Side-by-side on desktop) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6">
+        {/* Top Row Grid: Balance Card & Order Form (Side-by-side on tablet/desktop >= 768px) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-6">
           {/* Balance Card Section (5 cols) */}
-          <div className="lg:col-span-5">
+          <div className="md:col-span-5">
             <BalanceCard
               balance={balance}
               selectedTicker={selectedTicker}
@@ -329,7 +329,7 @@ export default function App() {
           </div>
 
           {/* Order Form Section (7 cols) */}
-          <div id="schedule-order-section" className="lg:col-span-7 scroll-mt-4">
+          <div id="schedule-order-section" className="md:col-span-7 scroll-mt-4">
             <OrderForm
               userRole={userRole}
               tickers={tickers}
