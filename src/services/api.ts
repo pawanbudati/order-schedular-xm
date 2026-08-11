@@ -94,7 +94,6 @@ export const api = {
   async updateConfig(config: {
     apiToken?: string;
     accountId?: string;
-    password?: string;
     serverName?: string;
     platform?: 'MT4' | 'MT5';
   }) {

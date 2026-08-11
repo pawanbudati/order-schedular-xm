@@ -8,7 +8,6 @@ interface ConfigModalProps {
   onSaveConfig: (config: {
     apiToken: string;
     accountId: string;
-    password?: string;
     serverName: string;
     platform: 'MT4' | 'MT5';
   }) => Promise<void>;
@@ -18,7 +17,6 @@ interface ConfigModalProps {
 export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSaveConfig, currentHasKeys }) => {
   const [apiToken, setApiToken] = useState<string>('');
   const [accountId, setAccountId] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const [serverName, setServerName] = useState<string>('XMGlobal-Real 30');
   const [platform, setPlatform] = useState<'MT4' | 'MT5'>('MT5');
   const [backendUrlInput, setBackendUrlInput] = useState<string>('');
@@ -34,7 +32,6 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
       setBackendUrlInput(savedCustom || '');
       setApiToken(localStorage.getItem('XM360_API_TOKEN') || 'LOCAL');
       setAccountId(localStorage.getItem('XM360_ACCOUNT_ID') || '');
-      setPassword(localStorage.getItem('XM360_PASSWORD') || '');
       setServerName(localStorage.getItem('XM360_SERVER_NAME') || 'XMGlobal-Real 30');
       setPlatform((localStorage.getItem('XM360_PLATFORM') as 'MT4' | 'MT5') || 'MT5');
       setPasscode(localStorage.getItem('XM360_PASSCODE') || '1234');
@@ -52,12 +49,11 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
       localStorage.setItem('XM360_PASSCODE', passcode || '1234');
       localStorage.setItem('XM360_API_TOKEN', apiToken || 'LOCAL');
       if (accountId) localStorage.setItem('XM360_ACCOUNT_ID', accountId);
-      if (password) localStorage.setItem('XM360_PASSWORD', password);
       if (serverName) localStorage.setItem('XM360_SERVER_NAME', serverName);
       if (platform) localStorage.setItem('XM360_PLATFORM', platform);
 
       // Save config first
-      await onSaveConfig({ apiToken, accountId, password, serverName, platform });
+      await onSaveConfig({ apiToken, accountId, serverName, platform });
 
       // Trigger manual bridge connection
       const res = await api.connectMt5Bridge();
@@ -81,11 +77,10 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
       localStorage.setItem('XM360_PASSCODE', passcode || '1234');
       localStorage.setItem('XM360_API_TOKEN', apiToken || 'LOCAL');
       if (accountId) localStorage.setItem('XM360_ACCOUNT_ID', accountId);
-      if (password) localStorage.setItem('XM360_PASSWORD', password);
       if (serverName) localStorage.setItem('XM360_SERVER_NAME', serverName);
       if (platform) localStorage.setItem('XM360_PLATFORM', platform);
 
-      await onSaveConfig({ apiToken, accountId, password, serverName, platform });
+      await onSaveConfig({ apiToken, accountId, serverName, platform });
 
       setSuccessMsg(true);
       setTimeout(() => {
@@ -110,7 +105,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-100">XM Terminal Settings</h2>
-              <p className="text-xs text-slate-400">Manage MT5 credentials and terminal security passcode</p>
+              <p className="text-xs text-slate-400">Configure connection & security options</p>
             </div>
           </div>
           <button
@@ -140,7 +135,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
             />
           </div>
 
-          {/* MT5 Account ID */}
+          {/* Platform & Server Info */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Platform</label>
@@ -155,32 +150,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">Account ID / Login</label>
-              <input
-                type="text"
-                value={accountId}
-                onChange={(e) => setAccountId(e.target.value)}
-                placeholder="e.g. 89201934"
-                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-cyan-500"
-              />
-            </div>
-          </div>
-
-          {/* Password & Server Name */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">Master Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-cyan-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">Server Name</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Server Name (Display)</label>
               <input
                 type="text"
                 value={serverName}
@@ -228,7 +198,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
                 <div className={`w-2.5 h-2.5 rounded-full ${isConnecting ? 'bg-amber-400 animate-ping' : 'bg-cyan-400 animate-pulse'}`} />
                 <div>
                   <span className="text-xs font-semibold text-slate-200">MT5 Local Execution Bridge</span>
-                  <p className="text-[10px] text-slate-400">Trigger connection to MT5 terminal using saved credentials</p>
+                  <p className="text-[10px] text-slate-400">Attach to active MT5 terminal running on your computer / VM</p>
                 </div>
               </div>
               <button
@@ -256,7 +226,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
           <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              Credentials are stored locally in your server database (`data.json`) and used exclusively for signing orders sent to your XM account.
+              Orders execute directly on your active MetaTrader 5 terminal application. No account passwords are needed or stored.
             </span>
           </div>
 
