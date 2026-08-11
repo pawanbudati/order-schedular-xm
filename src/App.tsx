@@ -314,22 +314,22 @@ export default function App() {
           </div>
         </div>
 
-        {/* Balance Card Section */}
-        <div>
-          <BalanceCard
-            balance={balance}
-            selectedTicker={selectedTicker}
-            leverage={leverage}
-            onSelectPercentage={handleSelectPercentage}
-            onRefreshBalance={fetchBalance}
-            isLoading={isBalanceLoading}
-          />
-        </div>
-
-        {/* Main Grid: Order Form & Queue */}
+        {/* Top Row Grid: Balance Card & Order Form (Side-by-side on desktop) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6">
-          {/* Order Form (5 cols) */}
-          <div id="schedule-order-section" className="lg:col-span-5 scroll-mt-4">
+          {/* Balance Card Section (5 cols) */}
+          <div className="lg:col-span-5">
+            <BalanceCard
+              balance={balance}
+              selectedTicker={selectedTicker}
+              leverage={leverage}
+              onSelectPercentage={handleSelectPercentage}
+              onRefreshBalance={fetchBalance}
+              isLoading={isBalanceLoading}
+            />
+          </div>
+
+          {/* Order Form Section (7 cols) */}
+          <div id="schedule-order-section" className="lg:col-span-7 scroll-mt-4">
             <OrderForm
               userRole={userRole}
               tickers={tickers}
@@ -342,17 +342,17 @@ export default function App() {
               onSubmitSchedule={handleScheduleOrder}
             />
           </div>
+        </div>
 
-          {/* Queue & History (7 cols) */}
-          <div id="orders-queue-section" className="lg:col-span-7 scroll-mt-4">
-            <OrderQueue
-              orders={orders}
-              onCancelOrder={handleCancelOrder}
-              onDeleteOrderHistory={handleDeleteOrderHistory}
-              onClearOrderHistory={handleClearOrderHistory}
-              serverOffsetMs={status?.offsetMs || 0}
-            />
-          </div>
+        {/* Bottom Section: Order Queue & History (Full 100% Width) */}
+        <div id="orders-queue-section" className="w-full scroll-mt-4">
+          <OrderQueue
+            orders={orders}
+            onCancelOrder={handleCancelOrder}
+            onDeleteOrderHistory={handleDeleteOrderHistory}
+            onClearOrderHistory={handleClearOrderHistory}
+            serverOffsetMs={status?.offsetMs || 0}
+          />
         </div>
       </main>
 

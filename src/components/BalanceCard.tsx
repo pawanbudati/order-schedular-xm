@@ -46,7 +46,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   const marginUtilizedPct = totalBalance > 0 ? Math.min(100, Math.max(0, (usedMargin / totalBalance) * 100)) : 0;
 
   return (
-    <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-300 dark:border-slate-800/80 flex flex-col justify-between gap-3.5 sm:gap-4 transition-colors duration-300">
+    <div className="glass-panel h-full p-4 sm:p-5 rounded-2xl border border-slate-300 dark:border-slate-800/80 flex flex-col justify-between gap-3.5 sm:gap-4 transition-colors duration-300">
       {/* Top Header Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
