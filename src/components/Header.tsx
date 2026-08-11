@@ -79,12 +79,14 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
             </button>
-            <button
-              onClick={onOpenConfig}
-              className="p-1.5 rounded-lg bg-slate-800/80 dark:bg-slate-800 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-700 border border-slate-700 dark:border-slate-700 light:border-slate-300 text-xs font-semibold"
-            >
-              <Key className="w-4 h-4 text-cyan-400 dark:text-cyan-400 light:text-cyan-600" />
-            </button>
+            {userRole === 'ADMIN' && (
+              <button
+                onClick={onOpenConfig}
+                className="p-1.5 rounded-lg bg-slate-800/80 dark:bg-slate-800 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-700 border border-slate-700 dark:border-slate-700 light:border-slate-300 text-xs font-semibold"
+              >
+                <Key className="w-4 h-4 text-cyan-400 dark:text-cyan-400 light:text-cyan-600" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -158,13 +160,15 @@ export const Header: React.FC<HeaderProps> = ({
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
             </button>
 
-            <button
-              onClick={onOpenConfig}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-200 text-slate-200 dark:text-slate-200 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-300 text-xs font-semibold transition-all shadow-sm"
-            >
-              <Key className="w-3.5 h-3.5 text-cyan-400 dark:text-cyan-400 light:text-cyan-600 shrink-0" />
-              <span>Settings</span>
-            </button>
+            {userRole === 'ADMIN' && (
+              <button
+                onClick={onOpenConfig}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-200 text-slate-200 dark:text-slate-200 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-300 text-xs font-semibold transition-all shadow-sm"
+              >
+                <Key className="w-3.5 h-3.5 text-cyan-400 dark:text-cyan-400 light:text-cyan-600 shrink-0" />
+                <span>Settings</span>
+              </button>
+            )}
             <button
               onClick={onOpenLogs}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-200 text-slate-200 dark:text-slate-200 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-300 text-xs font-semibold transition-all shadow-sm"
