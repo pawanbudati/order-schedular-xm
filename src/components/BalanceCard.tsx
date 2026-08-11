@@ -11,6 +11,18 @@ interface BalanceCardProps {
   isLoading: boolean;
 }
 
+const getContractSize = (symbol?: string): number => {
+  if (!symbol) return 100;
+  const s = symbol.toUpperCase();
+  if (s.includes('XAU') || s.includes('GOLD')) return 100; // 1 Lot = 100 oz (0.01 Lot = 1 oz)
+  if (s.includes('EUR') || s.includes('GBP') || s.includes('AUD') || s.includes('USD') || s.includes('CAD') || s.includes('NZD') || s.includes('CHF') || s.includes('JPY')) {
+    if (!s.includes('US30') && !s.includes('US500') && !s.includes('USTECH') && !s.includes('BTC') && !s.includes('ETH')) {
+      return 100000; // 1 Lot = 100,000 units for Forex pairs
+    }
+  }
+  return 1;
+};
+
 export const BalanceCard: React.FC<BalanceCardProps> = ({
   balance,
   selectedTicker,
@@ -24,7 +36,10 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   const totalBalance = balance?.balance || 0;
   const currentPrice = selectedTicker?.lastPrice || 1;
   const maxPurchasingPowerUsdt = availMargin * leverage;
-  const maxContracts = currentPrice > 0 ? maxPurchasingPowerUsdt / currentPrice : 0;
+
+  const contractSize = getContractSize(selectedTicker?.symbol);
+  const marginPerLot = (contractSize * currentPrice) / (leverage || 1);
+  const maxLots = marginPerLot > 0 ? availMargin / marginPerLot : 0;
 
   const marginUtilizedPct = totalBalance > 0 ? Math.min(100, Math.max(0, (usedMargin / totalBalance) * 100)) : 0;
 
@@ -96,7 +111,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 mb-2 font-medium">
           <span>Quick Lot Allocation ({selectedTicker?.symbol || 'XAUUSD'}):</span>
           <span className="font-mono text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-bold text-xs">
-            ~{maxContracts < 1 ? maxContracts.toFixed(2) : maxContracts.toFixed(1)} Max Lots
+            ~{maxLots < 1 ? maxLots.toFixed(2) : maxLots.toFixed(2)} Max Lots
           </span>
         </div>
 

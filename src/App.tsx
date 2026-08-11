@@ -123,22 +123,31 @@ export default function App() {
 
   // Handle % selection for available funds calculation
   const handleSelectPercentage = (pct: number) => {
-    const avail = balance?.availableMargin || 0;
+    const avail = balance?.availableMargin || balance?.equity || 0;
     const currentPrice = selectedTicker?.lastPrice || 1;
-    if (avail > 0 && currentPrice > 0) {
-      const marginToUse = (avail * (pct / 100));
-      const purchasingPowerUsdt = marginToUse * leverage;
-      const computedQty = purchasingPowerUsdt / currentPrice;
-
-      if (computedQty >= 100) {
-        setQuantity(computedQty.toFixed(1));
-      } else if (computedQty >= 1) {
-        setQuantity(computedQty.toFixed(2));
-      } else {
-        setQuantity(computedQty.toFixed(4));
+    const sym = (selectedTicker?.symbol || 'XAUUSD').toUpperCase();
+    
+    // Determine MT5 Contract Size (1 Lot = 100 oz for Gold, 100k for Forex)
+    let contractSize = 1;
+    if (sym.includes('XAU') || sym.includes('GOLD')) {
+      contractSize = 100; // 1 Lot = 100 oz (0.01 Lot = 1 oz)
+    } else if (sym.includes('EUR') || sym.includes('GBP') || sym.includes('AUD') || sym.includes('USD') || sym.includes('CAD') || sym.includes('NZD') || sym.includes('CHF') || sym.includes('JPY')) {
+      if (!sym.includes('US30') && !sym.includes('US500') && !sym.includes('USTECH') && !sym.includes('BTC') && !sym.includes('ETH')) {
+        contractSize = 100000; // 1 Lot = 100,000 units for Forex
       }
     }
+
+    if (avail > 0 && currentPrice > 0) {
+      const marginForPct = avail * (pct / 100);
+      const marginPerLot = (contractSize * currentPrice) / (leverage || 1);
+      const computedLots = marginPerLot > 0 ? marginForPct / marginPerLot : 0.01;
+
+      // Min 0.01 Lot (Micro Lot)
+      const roundedLots = Math.max(0.01, Math.floor(computedLots * 100) / 100);
+      setQuantity(roundedLots.toFixed(2));
+    }
   };
+
 
   // Schedule order submission handler
   const handleScheduleOrder = async (orderData: {
