@@ -72,16 +72,16 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       {/* Primary Metrics Grid */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 bg-slate-100 dark:bg-slate-900/70 p-3 sm:p-3.5 rounded-xl border border-slate-300 dark:border-slate-800/80">
         <div>
-          <span className="text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-400 font-bold">Free Margin ({balance?.currency || 'USD'})</span>
+          <span className="text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-400 font-bold">Free Margin</span>
           <div className="text-sm sm:text-lg font-black text-slate-900 dark:text-slate-100 font-mono mt-0.5 truncate">
-            ${availMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${availMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] sm:text-xs font-sans text-slate-500 font-bold">{balance?.currency || 'USD'}</span>
           </div>
         </div>
 
         <div>
-          <span className="text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-400 font-bold">Purchasing Power ({leverage}x)</span>
+          <span className="text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-400 font-bold">Account Equity</span>
           <div className="text-sm sm:text-lg font-black text-blue-700 dark:text-cyan-400 font-mono mt-0.5 truncate">
-            ${maxPurchasingPowerUsdt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] sm:text-xs font-sans text-slate-500 font-bold">{balance?.currency || 'USD'}</span>
           </div>
         </div>
       </div>
