@@ -83,28 +83,27 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
   }, [orders]);
 
   return (
-    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col gap-4 transition-colors duration-300">
+    <div className="glass-panel p-3.5 sm:p-5 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col gap-3.5 transition-colors duration-300">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800/60 dark:border-slate-800/60 light:border-slate-200 pb-4">
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 flex items-center gap-2 tracking-tight">
-            <span>Orders Queue & Execution History</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-900 dark:bg-slate-900 light:bg-slate-200 text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-mono border border-cyan-500/20">
-              {orders.length} Total
-            </span>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 border-b border-slate-800/60 dark:border-slate-800/60 light:border-slate-200 pb-3">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm sm:text-base font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 tracking-tight">
+            Orders Queue & History
           </h2>
-          <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-500">Real-time millisecond execution triggers & status metrics</p>
+          <span className="text-[11px] px-2 py-0.2 rounded-full bg-slate-900 dark:bg-slate-900 light:bg-slate-200 text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-mono border border-cyan-500/20 font-bold">
+            {orders.length}
+          </span>
         </div>
 
         {/* Search Bar */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+        <div className="relative w-full sm:w-56">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-2 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search symbol, ID, ticket..."
-            className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 shadow-sm font-medium"
+            placeholder="Search symbol, ticket..."
+            className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl pl-8 pr-3 py-1 text-xs text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 shadow-sm font-medium"
           />
         </div>
       </div>
@@ -112,7 +111,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
       {/* Filter Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {[
-          { key: 'ALL', label: 'All Orders', count: counts.all },
+          { key: 'ALL', label: 'All', count: counts.all },
           { key: 'PENDING', label: 'Pending', count: counts.pending },
           { key: 'COMPLETED', label: 'Completed', count: counts.completed },
           { key: 'FAILED', label: 'Failed', count: counts.failed },
@@ -120,7 +119,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key as any)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 shadow-sm active:scale-95 ${
+            className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 shadow-sm active:scale-95 ${
               activeTab === tab.key
                 ? 'bg-cyan-500 text-slate-950 shadow-cyan-500/20'
                 : 'bg-slate-900/80 dark:bg-slate-900/80 light:bg-slate-100 text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-slate-200 border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200'
@@ -138,15 +137,14 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
 
       {/* Empty State */}
       {filteredOrders.length === 0 ? (
-        <div className="py-12 text-center flex flex-col items-center justify-center text-slate-500 dark:text-slate-500 light:text-slate-400 gap-2">
-          <Clock className="w-10 h-10 stroke-1 opacity-40 text-cyan-400" />
-          <p className="text-sm font-semibold">No orders match your filter.</p>
-          <p className="text-xs text-slate-400">Use the Order Form above to schedule your first exact trigger time.</p>
+        <div className="py-8 text-center flex flex-col items-center justify-center text-slate-500 dark:text-slate-500 light:text-slate-400 gap-1.5">
+          <Clock className="w-8 h-8 stroke-1 opacity-40 text-cyan-400" />
+          <p className="text-xs font-semibold">No orders match your filter.</p>
         </div>
       ) : (
         <>
           {/* Mobile Card List (Visible on screens < 640px) */}
-          <div className="block sm:hidden space-y-3">
+          <div className="block sm:hidden space-y-2.5">
             {filteredOrders.map((order) => {
               const isPending = order.status === 'PENDING';
               const isExecuting = order.status === 'EXECUTING';
@@ -158,7 +156,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                 : formatIST(order.targetTime);
 
               return (
-                <div key={order.id} className="bg-slate-900/90 dark:bg-slate-900/90 light:bg-white p-4 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col gap-2.5 shadow-sm font-mono text-xs">
+                <div key={order.id} className="bg-slate-900/90 dark:bg-slate-900/90 light:bg-white p-3 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col gap-2 shadow-sm font-mono text-xs">
                   {/* Top Bar: Symbol, Side Badge, Action */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -176,7 +174,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                     {isPending && (
                       <button
                         onClick={() => onCancelOrder(order.id)}
-                        className="px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 dark:text-rose-400 light:text-rose-600 border border-rose-500/30 text-[11px] font-bold flex items-center gap-1 active:scale-95 transition-all"
+                        className="px-2 py-0.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 dark:text-rose-400 light:text-rose-600 border border-rose-500/30 text-[10px] font-bold flex items-center gap-1 active:scale-95 transition-all"
                       >
                         <Trash2 className="w-3 h-3" />
                         <span>Cancel</span>
@@ -185,7 +183,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                   </div>
 
                   {/* Scheduled Target Time */}
-                  <div className="flex flex-col text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 bg-slate-950/60 dark:bg-slate-950/60 light:bg-slate-100 p-2 rounded-xl border border-slate-800/60 dark:border-slate-800/60 light:border-slate-200">
+                  <div className="flex flex-col text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 bg-slate-950/60 dark:bg-slate-950/60 light:bg-slate-100 p-2 rounded-lg border border-slate-800/60 dark:border-slate-800/60 light:border-slate-200">
                     <div className="flex justify-between items-center">
                       <span className="font-sans font-medium text-[10px]">Target (IST):</span>
                       <span className="text-cyan-400 dark:text-cyan-300 light:text-cyan-600 font-bold">{displayTargetTime}</span>
@@ -197,12 +195,12 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                   </div>
 
                   {/* Status Indicator & Details */}
-                  <div className="flex flex-col gap-1.5 pt-1 border-t border-slate-800/50 dark:border-slate-800/50 light:border-slate-200">
+                  <div className="flex flex-col gap-1.5 pt-0.5 border-t border-slate-800/50 dark:border-slate-800/50 light:border-slate-200">
                     {isPending && (
-                      <div className="font-bold text-cyan-400 bg-cyan-950/60 dark:bg-cyan-950/60 light:bg-cyan-50 border border-cyan-500/30 px-3 py-1.5 rounded-xl flex items-center justify-between">
-                        <span className="text-[11px] font-sans font-semibold">Countdown:</span>
+                      <div className="font-bold text-cyan-400 bg-cyan-950/60 dark:bg-cyan-950/60 light:bg-cyan-50 border border-cyan-500/30 px-2.5 py-1 rounded-lg flex items-center justify-between">
+                        <span className="text-[10px] font-sans font-semibold">Countdown:</span>
                         <div className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                          <Clock className="w-3 h-3 animate-spin text-cyan-400" />
                           <span>{formatCountdown(order.targetTime)}</span>
                         </div>
                       </div>
@@ -215,7 +213,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>FILLED SUCCESS</span>
                           </span>
-                          <span className="bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">
+                          <span className="bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 rounded-md">
                             Drift: {order.precisionDriftMs !== undefined ? `${order.precisionDriftMs > 0 ? '+' : ''}${order.precisionDriftMs} ms` : '0 ms'}
                           </span>
                         </div>
@@ -228,13 +226,13 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                     )}
 
                     {isFailed && (
-                      <div className="flex flex-col gap-1.5 w-full text-rose-400 dark:text-rose-400 light:text-rose-600 font-semibold">
-                        <div className="flex items-center gap-1.5">
-                          <XCircle className="w-4 h-4 shrink-0" />
+                      <div className="flex flex-col gap-1 w-full text-rose-400 dark:text-rose-400 light:text-rose-600 font-semibold">
+                        <div className="flex items-center gap-1.5 text-[11px]">
+                          <XCircle className="w-3.5 h-3.5 shrink-0" />
                           <span>EXECUTION FAILED</span>
                         </div>
                         {order.errorMessage && (
-                          <div className="text-[11px] font-normal text-rose-300 dark:text-rose-300 light:text-rose-700 bg-rose-950/60 dark:bg-rose-950/60 light:bg-rose-50 border border-rose-800/50 dark:border-rose-800/50 light:border-rose-200 p-2 rounded-xl break-words font-mono">
+                          <div className="text-[10px] font-normal text-rose-300 dark:text-rose-300 light:text-rose-700 bg-rose-950/60 dark:bg-rose-950/60 light:bg-rose-50 border border-rose-800/50 dark:border-rose-800/50 light:border-rose-200 p-2 rounded-lg break-words font-mono">
                             {order.errorMessage}
                           </div>
                         )}
@@ -242,7 +240,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                     )}
 
                     {isCancelled && (
-                      <span className="text-slate-400 dark:text-slate-400 light:text-slate-500">Order Cancelled</span>
+                      <span className="text-slate-400 dark:text-slate-400 light:text-slate-500 text-[11px]">Order Cancelled</span>
                     )}
                   </div>
                 </div>
@@ -255,12 +253,12 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="text-slate-400 dark:text-slate-400 light:text-slate-500 border-b border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 font-semibold">
-                  <th className="py-3 px-3">Order Instrument</th>
-                  <th className="py-3 px-3">Type / Leverage</th>
-                  <th className="py-3 px-3">Scheduled Time (IST)</th>
-                  <th className="py-3 px-3">Countdown / Accuracy</th>
-                  <th className="py-3 px-3">Status</th>
-                  <th className="py-3 px-3 text-right">Action</th>
+                  <th className="py-2.5 px-2.5">Order Instrument</th>
+                  <th className="py-2.5 px-2.5">Type / Leverage</th>
+                  <th className="py-2.5 px-2.5">Scheduled Time (IST)</th>
+                  <th className="py-2.5 px-2.5">Countdown / Accuracy</th>
+                  <th className="py-2.5 px-2.5">Status</th>
+                  <th className="py-2.5 px-2.5 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 dark:divide-slate-800/60 light:divide-slate-200">
@@ -278,7 +276,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                   return (
                     <tr key={order.id} className="hover:bg-slate-900/40 dark:hover:bg-slate-900/40 light:hover:bg-slate-100 transition-all font-mono">
                       {/* Symbol & Side */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-3 px-2.5">
                         <div className="font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 flex items-center gap-2">
                           <span
                             className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
@@ -297,7 +295,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                       </td>
 
                       {/* Type & Leverage */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-3 px-2.5">
                         <div className="text-slate-200 dark:text-slate-200 light:text-slate-800 font-bold">{order.type}</div>
                         <div className="text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-normal">
                           {order.leverage}x XM Margin
@@ -305,22 +303,22 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                       </td>
 
                       {/* Target Time */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-3 px-2.5">
                         <div className="text-cyan-400 dark:text-cyan-300 light:text-cyan-600 font-bold">{displayTargetTime}</div>
                         <div className="text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500">ID: {order.id}</div>
                       </td>
 
                       {/* Countdown or Drift Metric */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-3 px-2.5">
                         {isPending && (
-                          <div className="font-bold text-cyan-400 dark:text-cyan-400 light:text-cyan-600 bg-cyan-950/60 dark:bg-cyan-950/60 light:bg-cyan-50 border border-cyan-500/30 px-3 py-1 rounded-xl inline-flex items-center gap-1.5">
+                          <div className="font-bold text-cyan-400 dark:text-cyan-400 light:text-cyan-600 bg-cyan-950/60 dark:bg-cyan-950/60 light:bg-cyan-50 border border-cyan-500/30 px-2.5 py-1 rounded-xl inline-flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5 animate-spin text-cyan-400" />
                             <span>{formatCountdown(order.targetTime)}</span>
                           </div>
                         )}
 
                         {isExecuting && (
-                          <div className="font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-xl inline-flex items-center gap-1.5 animate-pulse">
+                          <div className="font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-500/40 px-2.5 py-1 rounded-xl inline-flex items-center gap-1.5 animate-pulse">
                             <Zap className="w-3.5 h-3.5 text-cyan-400 fill-current" />
                             <span>TRIGGERING MT5...</span>
                           </div>
@@ -350,7 +348,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                       </td>
 
                       {/* Status & Error Display */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-3 px-2.5">
                         {isPending && (
                           <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
                             PENDING
@@ -374,7 +372,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                               <span>FAILED</span>
                             </span>
                             {order.errorMessage && (
-                              <div className="text-[10px] text-rose-300 dark:text-rose-300 light:text-rose-700 bg-rose-950/60 dark:bg-rose-950/60 light:bg-rose-50 border border-rose-800/50 dark:border-rose-800/50 light:border-rose-200 px-2.5 py-1 rounded-xl break-words font-mono leading-tight">
+                              <div className="text-[10px] text-rose-300 dark:text-rose-300 light:text-rose-700 bg-rose-950/60 dark:bg-rose-950/60 light:bg-rose-50 border border-rose-800/50 dark:border-rose-800/50 light:border-rose-200 px-2 py-0.5 rounded-lg break-words font-mono leading-tight">
                                 {order.errorMessage}
                               </div>
                             )}
@@ -388,7 +386,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                       </td>
 
                       {/* Action */}
-                      <td className="py-3.5 px-3 text-right">
+                      <td className="py-3 px-2.5 text-right">
                         {isPending && (
                           <button
                             onClick={() => onCancelOrder(order.id)}

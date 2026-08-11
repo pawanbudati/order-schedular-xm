@@ -121,13 +121,20 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
             <button
               key={pct}
               type="button"
-              onClick={() => onSelectPercentage(pct)}
+              onClick={() => {
+                onSelectPercentage(pct);
+                const el = document.getElementById('schedule-order-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
               className="py-1.5 px-2 text-xs font-bold rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-white hover:bg-cyan-500 dark:hover:bg-cyan-500 light:hover:bg-cyan-500 hover:text-black dark:hover:text-black light:hover:text-black text-slate-300 dark:text-slate-300 light:text-slate-700 border border-slate-800 dark:border-slate-800 light:border-slate-200 transition-all shadow-sm active:scale-95 flex items-center justify-center gap-0.5"
             >
               <span>{pct}%</span>
             </button>
           ))}
         </div>
+
       </div>
     </div>
   );

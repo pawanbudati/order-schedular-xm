@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Zap } from 'lucide-react';
 import { Header } from './components/Header';
 import { BalanceCard } from './components/BalanceCard';
 import { OrderForm } from './components/OrderForm';
@@ -66,7 +66,6 @@ export default function App() {
     } finally {
       setIsBalanceLoading(false);
     }
-
   }, []);
 
   // Load tickers
@@ -148,7 +147,6 @@ export default function App() {
     }
   };
 
-
   // Schedule order submission handler
   const handleScheduleOrder = async (orderData: {
     symbol: string;
@@ -195,72 +193,36 @@ export default function App() {
       />
 
       {/* Main Body Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6">
-        {/* Top Grid: Balance & Engine Metric Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Balance Card (1 col) */}
-          <div className="md:col-span-1">
-            <BalanceCard
-              balance={balance}
-              selectedTicker={selectedTicker}
-              leverage={leverage}
-              onSelectPercentage={handleSelectPercentage}
-              onRefreshBalance={fetchBalance}
-              isLoading={isBalanceLoading}
-            />
+      <main className="flex-1 max-w-7xl w-full mx-auto p-2.5 sm:p-5 md:p-6 space-y-3 sm:space-y-5">
+        {/* Ultra-Compact Top Engine Status Bar */}
+        <div className="glass-panel px-3 py-2 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-wrap items-center justify-between text-xs gap-2 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Zap className="w-3.5 h-3.5 text-cyan-400 fill-current" />
+            <span className="font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 text-[11px] sm:text-xs">XM 1ms Spin-Lock Active</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500 hidden sm:inline">| {status?.serverName || 'XMGlobal-Real'}</span>
           </div>
-
-          {/* High-Precision XM Engine Banner (2 cols) */}
-          <div className="md:col-span-2 glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col justify-between gap-3 shadow-sm transition-colors duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xs sm:text-sm font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 tracking-tight">High-Precision 1ms Execution Engine</h3>
-                <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-400 light:text-slate-500">Native Windows MT5 Terminal Execution</p>
-              </div>
-              <span className="text-[10px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                Spin-Lock Active
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 my-1 text-center">
-              <div className="bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100/80 p-2.5 sm:p-3 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
-                <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">MT5 Time Sync</span>
-                <div className="text-sm sm:text-lg font-bold font-mono text-cyan-400 dark:text-cyan-400 light:text-cyan-600 mt-0.5">
-                  {status ? (status.offsetMs > 0 ? `+${status.offsetMs}` : `${status.offsetMs}`) : '0'} ms
-                </div>
-              </div>
-
-              <div className="bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100/80 p-2.5 sm:p-3 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
-                <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">Pending Orders</span>
-                <div className="text-sm sm:text-lg font-bold font-mono text-amber-400 dark:text-amber-400 light:text-amber-600 mt-0.5">
-                  {orders.filter((o) => o.status === 'PENDING').length}
-                </div>
-              </div>
-
-              <div className="bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100/80 p-2.5 sm:p-3 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
-                <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">Avg Execution Accuracy</span>
-                <div className="text-sm sm:text-lg font-bold font-mono text-emerald-400 dark:text-emerald-400 light:text-emerald-600 mt-0.5">
-                  {(() => {
-                    const completed = orders.filter((o) => o.status === 'COMPLETED' && o.precisionDriftMs !== undefined);
-                    if (completed.length === 0) return '±1.8 ms';
-                    const avg = completed.reduce((acc, curr) => acc + Math.abs(curr.precisionDriftMs || 0), 0) / completed.length;
-                    return `+${avg.toFixed(1)} ms`;
-                  })()}
-                </div>
-              </div>
-            </div>
-
-            <div className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 flex items-center justify-between font-medium">
-              <span>Selected Pair: <span className="text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-mono font-bold">{selectedTicker?.symbol || 'XAUUSD'}</span> ({selectedTicker ? (selectedTicker.lastPrice < 10 ? selectedTicker.lastPrice.toFixed(4) : `$${selectedTicker.lastPrice.toLocaleString()}`) : '$2435.50'})</span>
-              <span>XM Server: <span className="text-slate-300 dark:text-slate-300 light:text-slate-800 font-mono font-bold">{status?.serverName || 'XMGlobal-Real'}</span></span>
-            </div>
+          <div className="flex items-center gap-3 font-mono text-[11px]">
+            <span className="text-slate-400 dark:text-slate-400 light:text-slate-600">Sync: <strong className="text-cyan-400 dark:text-cyan-400 light:text-cyan-600">{status ? (status.offsetMs > 0 ? `+${status.offsetMs}` : `${status.offsetMs}`) : '0'} ms</strong></span>
+            <span className="text-slate-400 dark:text-slate-400 light:text-slate-600">Pending: <strong className="text-amber-400 dark:text-amber-400 light:text-amber-600">{orders.filter((o) => o.status === 'PENDING').length}</strong></span>
           </div>
         </div>
 
+        {/* Balance Card Section */}
+        <div>
+          <BalanceCard
+            balance={balance}
+            selectedTicker={selectedTicker}
+            leverage={leverage}
+            onSelectPercentage={handleSelectPercentage}
+            onRefreshBalance={fetchBalance}
+            isLoading={isBalanceLoading}
+          />
+        </div>
+
         {/* Main Grid: Order Form & Queue */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6">
           {/* Order Form (5 cols) */}
-          <div className="lg:col-span-5">
+          <div id="schedule-order-section" className="lg:col-span-5 scroll-mt-4">
             <OrderForm
               tickers={tickers}
               selectedTicker={selectedTicker}
@@ -274,7 +236,7 @@ export default function App() {
           </div>
 
           {/* Queue & History (7 cols) */}
-          <div className="lg:col-span-7">
+          <div id="orders-queue-section" className="lg:col-span-7 scroll-mt-4">
             <OrderQueue
               orders={orders}
               onCancelOrder={handleCancelOrder}
