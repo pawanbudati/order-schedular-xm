@@ -100,7 +100,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
           <div className="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-300 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-300 flex items-start gap-2.5 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              Admin Password authentication is managed securely on the target backend via environment variable (<code>ADMIN_PASSWORD</code>).
+              Orders and system requests will connect directly to your specified backend API endpoint.
             </span>
           </div>
 
