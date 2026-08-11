@@ -160,8 +160,8 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             onClick={() => setSide('BUY')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95 ${
               side === 'BUY'
-                ? 'bg-emerald-500 text-slate-950 shadow-sm shadow-emerald-500/20'
-                : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-slate-200'
+                ? 'bg-emerald-500 dark:bg-emerald-500 light:bg-emerald-600 text-slate-950 dark:text-slate-950 light:text-white shadow-sm font-extrabold'
+                : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-slate-200 dark:hover:text-slate-200 light:hover:text-slate-900'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
@@ -172,14 +172,15 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             onClick={() => setSide('SELL')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95 ${
               side === 'SELL'
-                ? 'bg-rose-500 text-white shadow-sm shadow-rose-500/20'
-                : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-slate-200'
+                ? 'bg-rose-500 dark:bg-rose-500 light:bg-rose-600 text-white shadow-sm font-extrabold'
+                : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-slate-200 dark:hover:text-slate-200 light:hover:text-slate-900'
             }`}
           >
             <TrendingDown className="w-3.5 h-3.5" />
             <span>SELL</span>
           </button>
         </div>
+
       </div>
 
       {errorMsg && (
@@ -430,12 +431,13 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.99] ${
+          className={`w-full py-3 px-4 rounded-xl font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.99] ${
             side === 'BUY'
-              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400'
-              : 'bg-gradient-to-r from-rose-600 to-red-500 text-white shadow-rose-500/20 hover:from-rose-500 hover:to-red-400'
+              ? 'bg-emerald-500 dark:bg-emerald-500 light:bg-emerald-600 text-slate-950 dark:text-slate-950 light:text-white shadow-emerald-500/20 hover:bg-emerald-400 dark:hover:bg-emerald-400 light:hover:bg-emerald-700'
+              : 'bg-rose-600 dark:bg-rose-600 light:bg-rose-600 text-white shadow-rose-500/20 hover:bg-rose-500 dark:hover:bg-rose-500 light:hover:bg-rose-700'
           } disabled:opacity-50`}
         >
+
           <Send className="w-4 h-4" />
           <span>
             {isSubmitting

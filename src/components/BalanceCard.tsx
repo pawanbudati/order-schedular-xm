@@ -152,9 +152,10 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
               }}
               className={`py-1.5 px-1 text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center ${
                 allocPct === pct
-                  ? 'bg-cyan-500 text-slate-950 shadow-cyan-500/20 border border-cyan-400 font-extrabold'
-                  : 'bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-200 text-slate-300 dark:text-slate-300 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-300'
+                  ? 'bg-cyan-500 dark:bg-cyan-500 light:bg-cyan-600 text-slate-950 dark:text-slate-950 light:text-white shadow-sm border border-cyan-400 dark:border-cyan-400 light:border-cyan-600 font-extrabold'
+                  : 'bg-slate-900 dark:bg-slate-900 light:bg-white hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-700 border border-slate-800 dark:border-slate-800 light:border-slate-300'
               }`}
+
             >
               <span>{pct}%</span>
             </button>

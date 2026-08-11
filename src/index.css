@@ -4,12 +4,19 @@
 
 @layer base {
   :root {
-    --bg-main: #090d14;
+    --bg-main: #0b0f17;
     --text-main: #f8fafc;
-    --panel-bg: rgba(15, 23, 42, 0.75);
+    --panel-bg: rgba(17, 24, 39, 0.85);
     --panel-border: rgba(255, 255, 255, 0.08);
-    --input-bg: rgba(15, 23, 42, 0.85);
-    --card-bg: rgba(15, 23, 42, 0.6);
+    --input-bg: rgba(15, 23, 42, 0.9);
+    --card-bg: rgba(15, 23, 42, 0.7);
+  }
+
+  html.dark {
+    --bg-main: #0b0f17;
+    --text-main: #f8fafc;
+    --panel-bg: rgba(17, 24, 39, 0.85);
+    --panel-border: rgba(255, 255, 255, 0.08);
   }
 
   html.light {
@@ -49,10 +56,26 @@ html.light .glass-panel {
 }
 
 html.dark .glass-panel {
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35);
+  background-color: rgba(17, 24, 39, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
 }
 
-/* Light Mode Input & Select Fixes */
+/* Dark Mode Input & Select Styling */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  color: #f8fafc !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+html.dark input:focus,
+html.dark select:focus {
+  border-color: #06b6d4 !important;
+}
+
+/* Light Mode Input & Select Styling */
 html.light input,
 html.light select,
 html.light textarea {

@@ -121,17 +121,20 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
             onClick={() => setActiveTab(tab.key as any)}
             className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 shadow-sm active:scale-95 ${
               activeTab === tab.key
-                ? 'bg-cyan-500 text-slate-950 shadow-cyan-500/20'
-                : 'bg-slate-900/80 dark:bg-slate-900/80 light:bg-slate-100 text-slate-400 dark:text-slate-400 light:text-slate-700 hover:text-slate-200 border border-slate-800/80 dark:border-slate-800/80 light:border-slate-300'
+                ? 'bg-cyan-500 dark:bg-cyan-500 light:bg-cyan-600 text-slate-950 dark:text-slate-950 light:text-white shadow-sm font-extrabold'
+                : 'bg-slate-900/80 dark:bg-slate-900/80 light:bg-white text-slate-400 dark:text-slate-400 light:text-slate-700 hover:text-slate-200 dark:hover:text-slate-200 light:hover:text-slate-900 border border-slate-800/80 dark:border-slate-800/80 light:border-slate-300'
             }`}
           >
             <span>{tab.label}</span>
             <span className={`px-1.5 py-0.2 text-[10px] rounded-full font-mono ${
-              activeTab === tab.key ? 'bg-slate-950 text-cyan-300' : 'bg-slate-800 dark:bg-slate-800 light:bg-slate-200 text-slate-400 dark:text-slate-400 light:text-slate-700'
+              activeTab === tab.key
+                ? 'bg-slate-950 dark:bg-slate-950 light:bg-cyan-700 text-cyan-300 dark:text-cyan-300 light:text-white'
+                : 'bg-slate-800 dark:bg-slate-800 light:bg-slate-100 text-slate-400 dark:text-slate-400 light:text-slate-600'
             }`}>
               {tab.count}
             </span>
           </button>
+
         ))}
       </div>
 
