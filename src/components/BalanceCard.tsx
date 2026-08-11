@@ -48,7 +48,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       {/* Top Header Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/10 light:bg-cyan-100 border border-cyan-500/30 flex items-center justify-center text-cyan-400 dark:text-cyan-400 light:text-cyan-600 shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/10 light:bg-cyan-100 border border-cyan-500/30 light:border-cyan-300 flex items-center justify-center text-cyan-400 dark:text-cyan-400 light:text-cyan-700 shadow-sm">
             <Wallet className="w-4 h-4" />
           </div>
           <div>
@@ -63,22 +63,22 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           className="p-1.5 sm:p-2 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-200 text-slate-300 dark:text-slate-300 light:text-slate-700 transition-all border border-slate-800 dark:border-slate-800 light:border-slate-300 disabled:opacity-50 shadow-sm"
           title="Refresh Balance"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-cyan-400' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-cyan-400 dark:text-cyan-400 light:text-cyan-600' : ''}`} />
         </button>
       </div>
 
       {/* Primary Metrics Grid */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100/90 p-3 sm:p-3.5 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
         <div>
-          <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">Free Margin ({balance?.currency || 'USD'})</span>
+          <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-600 font-semibold">Free Margin ({balance?.currency || 'USD'})</span>
           <div className="text-sm sm:text-lg font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 font-mono mt-0.5 truncate">
             ${availMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
 
         <div>
-          <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">Purchasing Power ({leverage}x)</span>
-          <div className="text-sm sm:text-lg font-bold text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-mono mt-0.5 truncate">
+          <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-600 font-semibold">Purchasing Power ({leverage}x)</span>
+          <div className="text-sm sm:text-lg font-bold text-cyan-400 dark:text-cyan-400 light:text-cyan-700 font-mono mt-0.5 truncate">
             ${maxPurchasingPowerUsdt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
@@ -87,7 +87,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       {/* Margin Usage Progress Bar */}
       {totalBalance > 0 && (
         <div className="space-y-1">
-          <div className="flex justify-between text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">
+          <div className="flex justify-between text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-600 font-semibold">
             <span>Used Margin ({marginUtilizedPct.toFixed(1)}%)</span>
             <span>${usedMargin.toFixed(2)} / ${totalBalance.toFixed(2)}</span>
           </div>
@@ -108,9 +108,9 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
       {/* Max Lot Allocation Shortcuts */}
       <div className="pt-1 border-t border-slate-800/40 dark:border-slate-800/40 light:border-slate-200">
-        <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 mb-2 font-medium">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-600 mb-2 font-semibold">
           <span>Quick Lot Allocation ({selectedTicker?.symbol || 'XAUUSD'}):</span>
-          <span className="font-mono text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-bold text-xs">
+          <span className="font-mono text-cyan-400 dark:text-cyan-400 light:text-cyan-700 font-bold text-xs">
             ~{maxLots < 1 ? maxLots.toFixed(2) : maxLots.toFixed(2)} Max Lots
           </span>
         </div>
@@ -128,13 +128,12 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
                   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
               }}
-              className="py-1.5 px-2 text-xs font-bold rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-white hover:bg-cyan-500 dark:hover:bg-cyan-500 light:hover:bg-cyan-500 hover:text-black dark:hover:text-black light:hover:text-black text-slate-300 dark:text-slate-300 light:text-slate-700 border border-slate-800 dark:border-slate-800 light:border-slate-200 transition-all shadow-sm active:scale-95 flex items-center justify-center gap-0.5"
+              className="py-1.5 px-2 text-xs font-bold rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-cyan-500 dark:hover:bg-cyan-500 light:hover:bg-cyan-600 hover:text-black dark:hover:text-black light:hover:text-white text-slate-300 dark:text-slate-300 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-300 transition-all shadow-sm active:scale-95 flex items-center justify-center gap-0.5"
             >
               <span>{pct}%</span>
             </button>
           ))}
         </div>
-
       </div>
     </div>
   );
