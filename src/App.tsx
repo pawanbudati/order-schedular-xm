@@ -6,6 +6,7 @@ import { OrderForm } from './components/OrderForm';
 import { OrderQueue } from './components/OrderQueue';
 import { ConfigModal } from './components/ConfigModal';
 import { LogsModal } from './components/LogsModal';
+import { PasscodeModal } from './components/PasscodeModal';
 import { api } from './services/api';
 import { SystemStatus, AccountBalance, Ticker, ScheduledOrder, ExecutionLog } from './types';
 
@@ -13,6 +14,10 @@ export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('XM360_THEME');
     return (saved as 'dark' | 'light') || 'dark';
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('XM360_IS_AUTHENTICATED') === 'true';
   });
 
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -45,6 +50,21 @@ export default function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  const handleAuthenticate = (enteredPin: string): boolean => {
+    const savedPin = localStorage.getItem('XM360_PASSCODE') || '1234';
+    if (enteredPin === savedPin) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('XM360_IS_AUTHENTICATED', 'true');
+      return true;
+    }
+    return false;
+  };
+
+  const handleLockScreen = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('XM360_IS_AUTHENTICATED');
+  };
+
   // Load system status & server time sync
   const fetchStatus = useCallback(async () => {
     try {
@@ -66,6 +86,7 @@ export default function App() {
     } finally {
       setIsBalanceLoading(false);
     }
+
   }, []);
 
   // Load tickers
@@ -168,6 +189,18 @@ export default function App() {
     await fetchOrders();
   };
 
+  // Delete order history handler
+  const handleDeleteOrderHistory = async (id: string) => {
+    await api.deleteOrderHistory(id);
+    await fetchOrders();
+  };
+
+  // Clear all completed/failed order history handler
+  const handleClearOrderHistory = async () => {
+    await api.clearOrderHistory();
+    await fetchOrders();
+  };
+
   // Save API Key config handler
   const handleSaveConfig = async (config: {
     apiToken: string;
@@ -183,6 +216,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 dark:bg-slate-950 light:bg-slate-50 text-slate-100 dark:text-slate-100 light:text-slate-900 transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
+      {/* Passcode Security Lock Screen Modal */}
+      <PasscodeModal
+        isAuthenticated={isAuthenticated}
+        onAuthenticate={handleAuthenticate}
+      />
+
       {/* Header */}
       <Header
         status={status}
@@ -190,6 +229,7 @@ export default function App() {
         onToggleTheme={toggleTheme}
         onOpenConfig={() => setIsConfigOpen(true)}
         onOpenLogs={() => setIsLogsOpen(true)}
+        onLock={handleLockScreen}
       />
 
       {/* Main Body Container */}
@@ -240,6 +280,8 @@ export default function App() {
             <OrderQueue
               orders={orders}
               onCancelOrder={handleCancelOrder}
+              onDeleteOrderHistory={handleDeleteOrderHistory}
+              onClearOrderHistory={handleClearOrderHistory}
               serverOffsetMs={status?.offsetMs || 0}
             />
           </div>

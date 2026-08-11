@@ -5,6 +5,27 @@ import { SystemStatus, AccountBalance, Ticker, ScheduledOrder, ExecutionLog } fr
 let localOrdersQueue: ScheduledOrder[] = [];
 let localLogsQueue: ExecutionLog[] = [];
 
+const getDeletedOrderIds = (): string[] => {
+  try {
+    const raw = localStorage.getItem('XM360_DELETED_ORDERS');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const addDeletedOrderId = (id: string): void => {
+  try {
+    const current = getDeletedOrderIds();
+    if (!current.includes(id)) {
+      current.push(id);
+      localStorage.setItem('XM360_DELETED_ORDERS', JSON.stringify(current));
+    }
+  } catch {
+    // ignore
+  }
+};
+
 export const getBackendUrl = (): string => {
   const customUrl = localStorage.getItem('XM360_BACKEND_URL');
   if (customUrl) {
@@ -23,7 +44,6 @@ export const getBackendUrl = (): string => {
     return formatted;
   }
   return 'https://order-schedular.duckdns.org/api';
-
 };
 
 export const setBackendUrl = (url: string): void => {
@@ -38,7 +58,6 @@ export const setBackendUrl = (url: string): void => {
   }
   window.dispatchEvent(new Event('storage'));
 };
-
 
 const getApiBase = (): string => getBackendUrl();
 
@@ -153,11 +172,13 @@ export const api = {
   },
 
   async getOrders(): Promise<ScheduledOrder[]> {
+    const deletedIds = getDeletedOrderIds();
     try {
       const res = await axios.get(`${getApiBase()}/orders`, { timeout: 3000 });
-      return res.data.data;
+      const rawOrders: ScheduledOrder[] = res.data.data || [];
+      return rawOrders.filter((o) => !deletedIds.includes(o.id));
     } catch {
-      return localOrdersQueue;
+      return localOrdersQueue.filter((o) => !deletedIds.includes(o.id));
     }
   },
 
@@ -169,6 +190,33 @@ export const api = {
       localOrdersQueue = localOrdersQueue.filter((o) => o.id !== id);
       return true;
     }
+  },
+
+  async deleteOrderHistory(id: string): Promise<boolean> {
+    addDeletedOrderId(id);
+    localOrdersQueue = localOrdersQueue.filter((o) => o.id !== id);
+    try {
+      await axios.delete(`${getApiBase()}/orders/${id}/history`, { timeout: 3000 });
+    } catch {
+      // filtered locally
+    }
+    return true;
+  },
+
+  async clearOrderHistory(): Promise<boolean> {
+    const deletedIds = getDeletedOrderIds();
+    localOrdersQueue.forEach((o) => {
+      if (o.status === 'COMPLETED' || o.status === 'FAILED' || o.status === 'CANCELLED') {
+        addDeletedOrderId(o.id);
+      }
+    });
+    localOrdersQueue = localOrdersQueue.filter((o) => o.status === 'PENDING' || o.status === 'EXECUTING');
+    try {
+      await axios.delete(`${getApiBase()}/orders/history/clear`, { timeout: 3000 });
+    } catch {
+      // cleared locally
+    }
+    return true;
   },
 
   async getLogs(): Promise<ExecutionLog[]> {
