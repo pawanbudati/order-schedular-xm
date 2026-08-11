@@ -62,9 +62,9 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 dark:bg-slate-950/90 light:bg-slate-900/80 backdrop-blur-xl animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-fadeIn">
       <div
-        className={`w-full max-w-sm glass-panel p-6 sm:p-7 rounded-3xl border border-slate-800 dark:border-slate-800 light:border-slate-300 shadow-2xl flex flex-col items-center gap-4 text-center ${
+        className={`w-full max-w-sm glass-panel p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col items-center gap-4 text-center ${
           isShaking ? 'animate-shake' : ''
         }`}
       >
@@ -80,10 +80,10 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
 
         {/* Title & Context */}
         <div className="space-y-1">
-          <h2 className="text-lg sm:text-xl font-extrabold text-slate-100 dark:text-slate-100 light:text-slate-900 tracking-tight">
+          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
             XM360 Order Terminal
           </h2>
-          <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             Select access mode to continue
           </p>
         </div>
@@ -96,8 +96,8 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
                 key={idx}
                 className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-200 ${
                   pin.length > idx
-                    ? 'bg-cyan-400 border-cyan-400 shadow-md shadow-cyan-500/50 scale-110'
-                    : 'border-slate-700 dark:border-slate-700 light:border-slate-300 bg-slate-900/50 dark:bg-slate-900/50 light:bg-slate-100'
+                    ? 'bg-cyan-600 dark:bg-cyan-400 border-cyan-600 dark:border-cyan-400 shadow-md shadow-cyan-500/50 scale-110'
+                    : 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/50'
                 }`}
               />
             ))}
@@ -113,11 +113,11 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
               setErrorMsg('');
             }}
             placeholder="Enter Admin PIN"
-            className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-4 py-2 text-center text-base font-mono font-bold tracking-[0.4em] text-cyan-400 focus:outline-none focus:border-cyan-500"
+            className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2 text-center text-base font-mono font-bold tracking-[0.4em] text-cyan-700 dark:text-cyan-400 focus:outline-none focus:border-cyan-500"
           />
 
           {errorMsg && (
-            <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center justify-center gap-1.5">
+            <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs font-semibold flex items-center justify-center gap-1.5">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -130,7 +130,7 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
                 key={num}
                 type="button"
                 onClick={() => handleKeyPress(num)}
-                className="py-2.5 rounded-xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100 text-slate-100 dark:text-slate-100 light:text-slate-900 font-mono text-base font-bold border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 transition-all active:scale-95 shadow-sm"
+                className="py-2.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono text-base font-bold border border-slate-200 dark:border-slate-800/80 transition-all active:scale-95 shadow-sm"
               >
                 {num}
               </button>
@@ -138,21 +138,21 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="py-2.5 rounded-xl bg-slate-900/40 dark:bg-slate-900/40 light:bg-slate-100 hover:bg-slate-800/60 text-slate-400 dark:text-slate-400 light:text-slate-600 font-sans text-xs font-bold border border-slate-800/50 transition-all active:scale-95"
+              className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/40 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400 font-sans text-xs font-bold border border-slate-300 dark:border-slate-800/50 transition-all active:scale-95"
             >
               CLR
             </button>
             <button
               type="button"
               onClick={() => handleKeyPress('0')}
-              className="py-2.5 rounded-xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100 text-slate-100 dark:text-slate-100 light:text-slate-900 font-mono text-base font-bold border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 transition-all active:scale-95 shadow-sm"
+              className="py-2.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono text-base font-bold border border-slate-200 dark:border-slate-800/80 transition-all active:scale-95 shadow-sm"
             >
               0
             </button>
             <button
               type="button"
               onClick={handleBackspace}
-              className="py-2.5 rounded-xl bg-slate-900/40 dark:bg-slate-900/40 light:bg-slate-100 hover:bg-slate-800/60 text-slate-400 dark:text-slate-400 light:text-slate-600 font-sans text-xs font-bold border border-slate-800/50 transition-all active:scale-95"
+              className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/40 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400 font-sans text-xs font-bold border border-slate-300 dark:border-slate-800/50 transition-all active:scale-95"
             >
               ⌫
             </button>
@@ -162,7 +162,7 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
           <button
             type="submit"
             disabled={isAuthenticating}
-            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-cyan-500/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white dark:text-slate-950 font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-cyan-500/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <UserCheck className={`w-4 h-4 ${isAuthenticating ? 'animate-spin' : ''}`} />
             <span>{isAuthenticating ? 'Verifying...' : 'Unlock Admin Mode (Live Orders)'}</span>
@@ -171,8 +171,8 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
 
         {/* Divider */}
         <div className="relative w-full my-1 flex items-center justify-center">
-          <div className="w-full border-t border-slate-800/80 dark:border-slate-800/80 light:border-slate-300" />
-          <span className="absolute bg-slate-900 dark:bg-slate-900 light:bg-slate-100 px-2 text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+          <div className="w-full border-t border-slate-200 dark:border-slate-800/80" />
+          <span className="absolute bg-white dark:bg-slate-900 px-2 text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
             OR
           </span>
         </div>
@@ -181,7 +181,7 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
         <button
           type="button"
           onClick={onGuestAccess}
-          className="w-full py-2.5 rounded-xl bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 hover:bg-amber-500/20 text-amber-400 dark:text-amber-400 light:text-amber-700 border border-amber-500/30 font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-2 shadow-sm"
+          className="w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30 font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-2 shadow-sm"
         >
           <Eye className="w-4 h-4" />
           <span>Continue as Guest (Demo Sandbox)</span>
