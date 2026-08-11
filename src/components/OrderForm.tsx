@@ -390,15 +390,19 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             {/* Milliseconds (.SSS) */}
             <div>
               <label className="block text-[9px] text-slate-400 dark:text-slate-400 light:text-slate-500 mb-0.5 font-medium font-mono">MS (.SSS)</label>
-              <input
-                type="number"
-                min="0"
-                max="999"
+              <select
                 value={targetMsStr}
                 onChange={(e) => setTargetMsStr(e.target.value)}
-                className="w-full bg-slate-950 dark:bg-slate-950 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-lg px-1.5 py-1 text-[11px] font-mono font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 shadow-sm"
-              />
+                className="w-full bg-slate-950 dark:bg-slate-950 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-lg px-1 py-1 text-[11px] font-mono font-bold text-cyan-400 dark:text-cyan-400 light:text-cyan-600 focus:outline-none focus:border-cyan-500 shadow-sm cursor-pointer"
+              >
+                {['000', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950', '990'].map((ms) => (
+                  <option key={ms} value={ms} className="bg-slate-900 text-slate-100 font-mono">
+                    .{ms} ms
+                  </option>
+                ))}
+              </select>
             </div>
+
           </div>
 
           {/* Quick Offset Shortcuts */}
