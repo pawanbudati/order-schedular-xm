@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Wallet, ShieldAlert, ArrowUpRight, Percent, RefreshCw, Layers } from 'lucide-react';
 import { AccountBalance, Ticker } from '../types';
 
@@ -31,6 +31,8 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   onRefreshBalance,
   isLoading,
 }) => {
+  const [allocPct, setAllocPct] = useState<number>(50);
+
   const availMargin = balance?.availableMargin || balance?.equity || 0;
   const usedMargin = balance?.usedMargin || 0;
   const totalBalance = balance?.balance || 0;
@@ -106,29 +108,53 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         </div>
       )}
 
-      {/* Max Lot Allocation Shortcuts */}
-      <div className="pt-1 border-t border-slate-800/40 dark:border-slate-800/40 light:border-slate-200">
-        <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-600 mb-2 font-semibold">
+      {/* Max Lot Allocation Shortcuts & Slider */}
+      <div className="pt-2 border-t border-slate-800/40 dark:border-slate-800/40 light:border-slate-200 flex flex-col gap-2">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-600 font-semibold">
           <span>Quick Lot Allocation ({selectedTicker?.symbol || 'XAUUSD'}):</span>
-          <span className="font-mono text-cyan-400 dark:text-cyan-400 light:text-cyan-700 font-bold text-xs">
-            ~{maxLots < 1 ? maxLots.toFixed(2) : maxLots.toFixed(2)} Max Lots
-          </span>
+          <div className="flex items-center gap-1.5 font-mono">
+            <span className="text-cyan-400 dark:text-cyan-400 light:text-cyan-700 font-bold text-xs">{allocPct}%</span>
+            <span className="text-slate-400 dark:text-slate-400 light:text-slate-500">
+              (~{(maxLots * (allocPct / 100)).toFixed(2)} Lots)
+            </span>
+          </div>
         </div>
 
-        {/* Quick Allocation Percent Chips */}
-        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-          {[25, 50, 75, 100].map((pct) => (
+        {/* Percentage Slider */}
+        <div className="px-0.5">
+          <input
+            type="range"
+            min="1"
+            max="100"
+            value={allocPct}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              setAllocPct(val);
+              onSelectPercentage(val);
+            }}
+            className="w-full h-1.5 bg-slate-800 dark:bg-slate-800 light:bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-400 dark:accent-cyan-400 light:accent-cyan-600"
+          />
+        </div>
+
+        {/* Quick Allocation Percent Chips (25%, 50%, 75%, 90%, 100%) */}
+        <div className="grid grid-cols-5 gap-1 sm:gap-1.5">
+          {[25, 50, 75, 90, 100].map((pct) => (
             <button
               key={pct}
               type="button"
               onClick={() => {
+                setAllocPct(pct);
                 onSelectPercentage(pct);
                 const el = document.getElementById('schedule-order-section');
                 if (el) {
                   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
               }}
-              className="py-1.5 px-2 text-xs font-bold rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-cyan-500 dark:hover:bg-cyan-500 light:hover:bg-cyan-600 hover:text-black dark:hover:text-black light:hover:text-white text-slate-300 dark:text-slate-300 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-300 transition-all shadow-sm active:scale-95 flex items-center justify-center gap-0.5"
+              className={`py-1.5 px-1 text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center ${
+                allocPct === pct
+                  ? 'bg-cyan-500 text-slate-950 shadow-cyan-500/20 border border-cyan-400 font-extrabold'
+                  : 'bg-slate-900 dark:bg-slate-900 light:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-200 text-slate-300 dark:text-slate-300 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-300'
+              }`}
             >
               <span>{pct}%</span>
             </button>
