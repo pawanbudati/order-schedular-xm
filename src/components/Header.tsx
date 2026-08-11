@@ -90,8 +90,9 @@ export const Header: React.FC<HeaderProps> = ({ status, theme, onToggleTheme, on
             {status?.hasApiKeys ? (
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 light:bg-emerald-100 text-emerald-400 dark:text-emerald-400 light:text-emerald-700 border border-emerald-500/30 light:border-emerald-300 text-[11px] font-semibold">
                 <CheckCircle2 className="w-3 h-3 shrink-0" />
-                <span className="truncate max-w-[120px] sm:max-w-none">MT5 Connected ({status.accountId || 'Active'})</span>
+                <span>MT5 Connected</span>
               </div>
+
             ) : (
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/10 light:bg-amber-100 text-amber-400 dark:text-amber-400 light:text-amber-700 border border-amber-500/30 light:border-amber-300 text-[11px] font-semibold">
                 <AlertCircle className="w-3 h-3 shrink-0" />
