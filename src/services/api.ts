@@ -22,7 +22,8 @@ export const getBackendUrl = (): string => {
     }
     return formatted;
   }
-  return 'https://xml-stockings-plates-zshops.trycloudflare.com/api';
+  return 'https://order-schedular.duckdns.org/api';
+
 };
 
 export const setBackendUrl = (url: string): void => {
