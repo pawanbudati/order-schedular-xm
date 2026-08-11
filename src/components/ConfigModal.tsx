@@ -124,13 +124,13 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSav
                 <Lock className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Backend Admin Password / PIN</span>
               </span>
-              <span className="text-[10px] text-slate-500">Env: ADMIN_PASSWORD (Default: 1234)</span>
+              <span className="text-[10px] text-slate-500">Env: ADMIN_PASSWORD</span>
             </label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Admin PIN (e.g. 1234)"
+              placeholder="Admin PIN"
               className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-cyan-400 focus:outline-none focus:border-cyan-500"
             />
           </div>

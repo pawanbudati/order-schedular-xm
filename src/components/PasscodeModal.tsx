@@ -112,7 +112,7 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
               setPin(e.target.value);
               setErrorMsg('');
             }}
-            placeholder="Admin PIN (1234)"
+            placeholder="Enter Admin PIN"
             className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-4 py-2 text-center text-base font-mono font-bold tracking-[0.4em] text-cyan-400 focus:outline-none focus:border-cyan-500"
           />
 

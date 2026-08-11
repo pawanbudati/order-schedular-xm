@@ -235,7 +235,7 @@ export default function App() {
       }, delay);
 
       alert(
-        `📌 GUEST DEMO MODE:\nOrder scheduled as a sandbox simulation.\n\nSince you are in Guest Mode, this order will NOT be executed on live MT5.\n\nTo place live MT5 orders, unlock Admin mode with PIN 1234.`
+        `📌 GUEST DEMO MODE:\nOrder scheduled as a sandbox simulation.\n\nSince you are in Guest Mode, this order will NOT be executed on live MT5.\n\nTo place live MT5 orders, unlock Admin mode with your Admin PIN.`
       );
       return;
     }
