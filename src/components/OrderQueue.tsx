@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, XCircle, AlertTriangle, Trash2, Ban, ExternalLink, Zap } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Clock, CheckCircle2, XCircle, AlertTriangle, Trash2, Ban, ExternalLink, Zap, Search, Filter, Layers } from 'lucide-react';
 import { ScheduledOrder } from '../types';
 
 interface OrderQueueProps {
@@ -30,11 +30,13 @@ const formatIST = (ts: number): string => {
 
 export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, serverOffsetMs }) => {
   const [nowMs, setNowMs] = useState<number>(Date.now() + serverOffsetMs);
+  const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'COMPLETED' | 'FAILED'>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setNowMs(Date.now() + serverOffsetMs);
-    }, 45); // High refresh rate for millisecond countdown
+    }, 45);
 
     return () => clearInterval(timer);
   }, [serverOffsetMs]);
@@ -51,31 +53,101 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
     return `${hours}:${minutes}:${seconds}.${ms}`;
   };
 
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      // Tab filter
+      if (activeTab === 'PENDING' && order.status !== 'PENDING') return false;
+      if (activeTab === 'COMPLETED' && order.status !== 'COMPLETED') return false;
+      if (activeTab === 'FAILED' && order.status !== 'FAILED') return false;
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchSymbol = order.symbol.toLowerCase().includes(q);
+        const matchId = order.id.toLowerCase().includes(q);
+        const matchTicket = (order.xmOrderId || order.brokerOrderId || '').toLowerCase().includes(q);
+        if (!matchSymbol && !matchId && !matchTicket) return false;
+      }
+
+      return true;
+    });
+  }, [orders, activeTab, searchQuery]);
+
+  const counts = useMemo(() => {
+    return {
+      all: orders.length,
+      pending: orders.filter((o) => o.status === 'PENDING').length,
+      completed: orders.filter((o) => o.status === 'COMPLETED').length,
+      failed: orders.filter((o) => o.status === 'FAILED').length,
+    };
+  }, [orders]);
+
   return (
-    <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col gap-4 transition-colors duration-300">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800/60 dark:border-slate-800/60 light:border-slate-200 pb-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <span>Scheduled Orders Queue & History</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-cyan-400 font-mono">
+          <h2 className="text-base sm:text-lg font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 flex items-center gap-2 tracking-tight">
+            <span>Orders Queue & Execution History</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-900 dark:bg-slate-900 light:bg-slate-200 text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-mono border border-cyan-500/20">
               {orders.length} Total
             </span>
           </h2>
-          <p className="text-xs text-slate-400">Live active countdowns & millisecond execution logs</p>
+          <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-500">Real-time millisecond execution triggers & status metrics</p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-64">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search symbol, ID, ticket..."
+            className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 shadow-sm font-medium"
+          />
         </div>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="py-12 text-center flex flex-col items-center justify-center text-slate-500 gap-2">
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        {[
+          { key: 'ALL', label: 'All Orders', count: counts.all },
+          { key: 'PENDING', label: 'Pending', count: counts.pending },
+          { key: 'COMPLETED', label: 'Completed', count: counts.completed },
+          { key: 'FAILED', label: 'Failed', count: counts.failed },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as any)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 shadow-sm active:scale-95 ${
+              activeTab === tab.key
+                ? 'bg-cyan-500 text-slate-950 shadow-cyan-500/20'
+                : 'bg-slate-900/80 dark:bg-slate-900/80 light:bg-slate-100 text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-slate-200 border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200'
+            }`}
+          >
+            <span>{tab.label}</span>
+            <span className={`px-1.5 py-0.2 text-[10px] rounded-full font-mono ${
+              activeTab === tab.key ? 'bg-slate-950 text-cyan-300' : 'bg-slate-800 dark:bg-slate-800 light:bg-slate-200 text-slate-400'
+            }`}>
+              {tab.count}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {filteredOrders.length === 0 ? (
+        <div className="py-12 text-center flex flex-col items-center justify-center text-slate-500 dark:text-slate-500 light:text-slate-400 gap-2">
           <Clock className="w-10 h-10 stroke-1 opacity-40 text-cyan-400" />
-          <p className="text-sm">No scheduled orders yet.</p>
-          <p className="text-xs text-slate-600">Use the Order Form above to set your first exact timestamp trigger.</p>
+          <p className="text-sm font-semibold">No orders match your filter.</p>
+          <p className="text-xs text-slate-400">Use the Order Form above to schedule your first exact trigger time.</p>
         </div>
       ) : (
         <>
           {/* Mobile Card List (Visible on screens < 640px) */}
           <div className="block sm:hidden space-y-3">
-            {orders.map((order) => {
+            {filteredOrders.map((order) => {
               const isPending = order.status === 'PENDING';
               const isExecuting = order.status === 'EXECUTING';
               const isCompleted = order.status === 'COMPLETED';
@@ -86,24 +158,25 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                 : formatIST(order.targetTime);
 
               return (
-                <div key={order.id} className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 flex flex-col gap-2 font-mono text-xs">
+                <div key={order.id} className="bg-slate-900/90 dark:bg-slate-900/90 light:bg-white p-4 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col gap-2.5 shadow-sm font-mono text-xs">
+                  {/* Top Bar: Symbol, Side Badge, Action */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold tracking-wider ${
                         order.side === 'BUY'
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                          ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-400 light:text-emerald-700 border border-emerald-500/30'
+                          : 'bg-rose-500/20 text-rose-400 dark:text-rose-400 light:text-rose-700 border border-rose-500/30'
                       }`}>
-                        {order.side}
+                        {order.side} {order.positionSide}
                       </span>
-                      <span className="font-bold text-slate-100 text-sm">{order.symbol}</span>
-                      <span className="text-[11px] text-slate-400">{order.quantity} Lots</span>
+                      <span className="font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 text-sm font-sans">{order.symbol}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-semibold">{order.quantity} Lots</span>
                     </div>
 
                     {isPending && (
                       <button
                         onClick={() => onCancelOrder(order.id)}
-                        className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[11px] font-semibold flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 dark:text-rose-400 light:text-rose-600 border border-rose-500/30 text-[11px] font-bold flex items-center gap-1 active:scale-95 transition-all"
                       >
                         <Trash2 className="w-3 h-3" />
                         <span>Cancel</span>
@@ -111,32 +184,57 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-400">
-                    <span>Target: <strong className="text-cyan-300">{displayTargetTime}</strong></span>
-                    <span>Leverage: {order.leverage}x</span>
+                  {/* Scheduled Target Time */}
+                  <div className="flex flex-col text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 bg-slate-950/60 dark:bg-slate-950/60 light:bg-slate-100 p-2 rounded-xl border border-slate-800/60 dark:border-slate-800/60 light:border-slate-200">
+                    <div className="flex justify-between items-center">
+                      <span className="font-sans font-medium text-[10px]">Target (IST):</span>
+                      <span className="text-cyan-400 dark:text-cyan-300 light:text-cyan-600 font-bold">{displayTargetTime}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] mt-0.5 text-slate-400">
+                      <span>Leverage: {order.leverage}x</span>
+                      <span>Type: {order.type}</span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/60">
+                  {/* Status Indicator & Details */}
+                  <div className="flex flex-col gap-1.5 pt-1 border-t border-slate-800/50 dark:border-slate-800/50 light:border-slate-200">
                     {isPending && (
-                      <div className="font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-lg inline-flex items-center gap-1">
-                        <Clock className="w-3 h-3 animate-spin text-cyan-400" />
-                        <span>{formatCountdown(order.targetTime)}</span>
+                      <div className="font-bold text-cyan-400 bg-cyan-950/60 dark:bg-cyan-950/60 light:bg-cyan-50 border border-cyan-500/30 px-3 py-1.5 rounded-xl flex items-center justify-between">
+                        <span className="text-[11px] font-sans font-semibold">Countdown:</span>
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                          <span>{formatCountdown(order.targetTime)}</span>
+                        </div>
                       </div>
                     )}
+
                     {isCompleted && (
-                      <div className="text-emerald-400 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Done ({order.precisionDriftMs ? `${order.precisionDriftMs > 0 ? '+' : ''}${order.precisionDriftMs}ms` : '0ms'})</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="text-emerald-400 dark:text-emerald-400 light:text-emerald-600 font-bold flex items-center justify-between text-[11px]">
+                          <span className="flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>FILLED SUCCESS</span>
+                          </span>
+                          <span className="bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">
+                            Drift: {order.precisionDriftMs !== undefined ? `${order.precisionDriftMs > 0 ? '+' : ''}${order.precisionDriftMs} ms` : '0 ms'}
+                          </span>
+                        </div>
+                        {(order.xmOrderId || order.brokerOrderId) && (
+                          <div className="text-[10px] text-slate-400 font-mono">
+                            MT5 Order Ticket: <span className="text-slate-200 font-bold">#{order.xmOrderId || order.brokerOrderId}</span>
+                          </div>
+                        )}
                       </div>
                     )}
+
                     {isFailed && (
-                      <div className="flex flex-col gap-1 w-full text-rose-400 font-semibold">
-                        <div className="flex items-center gap-1">
-                          <XCircle className="w-3.5 h-3.5" />
-                          <span>Failed</span>
+                      <div className="flex flex-col gap-1.5 w-full text-rose-400 dark:text-rose-400 light:text-rose-600 font-semibold">
+                        <div className="flex items-center gap-1.5">
+                          <XCircle className="w-4 h-4 shrink-0" />
+                          <span>EXECUTION FAILED</span>
                         </div>
                         {order.errorMessage && (
-                          <div className="text-[11px] font-normal text-rose-300 bg-rose-950/60 border border-rose-800/50 p-2 rounded-lg break-words font-mono">
+                          <div className="text-[11px] font-normal text-rose-300 dark:text-rose-300 light:text-rose-700 bg-rose-950/60 dark:bg-rose-950/60 light:bg-rose-50 border border-rose-800/50 dark:border-rose-800/50 light:border-rose-200 p-2 rounded-xl break-words font-mono">
                             {order.errorMessage}
                           </div>
                         )}
@@ -144,7 +242,7 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
                     )}
 
                     {isCancelled && (
-                      <span className="text-slate-500">Cancelled</span>
+                      <span className="text-slate-400 dark:text-slate-400 light:text-slate-500">Order Cancelled</span>
                     )}
                   </div>
                 </div>
@@ -156,158 +254,157 @@ export const OrderQueue: React.FC<OrderQueueProps> = ({ orders, onCancelOrder, s
           <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="text-slate-400 border-b border-slate-800/80 font-medium">
-                  <th className="py-3 px-3">Order Details</th>
+                <tr className="text-slate-400 dark:text-slate-400 light:text-slate-500 border-b border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 font-semibold">
+                  <th className="py-3 px-3">Order Instrument</th>
                   <th className="py-3 px-3">Type / Leverage</th>
                   <th className="py-3 px-3">Scheduled Time (IST)</th>
-                  <th className="py-3 px-3">Countdown / Precision</th>
+                  <th className="py-3 px-3">Countdown / Accuracy</th>
                   <th className="py-3 px-3">Status</th>
                   <th className="py-3 px-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
-              {orders.map((order) => {
-                const isPending = order.status === 'PENDING';
-                const isExecuting = order.status === 'EXECUTING';
-                const isCompleted = order.status === 'COMPLETED';
-                const isFailed = order.status === 'FAILED';
-                const isCancelled = order.status === 'CANCELLED';
+              <tbody className="divide-y divide-slate-800/60 dark:divide-slate-800/60 light:divide-slate-200">
+                {filteredOrders.map((order) => {
+                  const isPending = order.status === 'PENDING';
+                  const isExecuting = order.status === 'EXECUTING';
+                  const isCompleted = order.status === 'COMPLETED';
+                  const isFailed = order.status === 'FAILED';
+                  const isCancelled = order.status === 'CANCELLED';
 
-                const displayTargetTime = order.targetTimeFormatted && order.targetTimeFormatted.includes('IST')
-                  ? order.targetTimeFormatted
-                  : formatIST(order.targetTime);
+                  const displayTargetTime = order.targetTimeFormatted && order.targetTimeFormatted.includes('IST')
+                    ? order.targetTimeFormatted
+                    : formatIST(order.targetTime);
 
-                return (
-                  <tr key={order.id} className="hover:bg-slate-900/40 transition-all font-mono">
-                    {/* Symbol & Side */}
-                    <td className="py-3.5 px-3">
-                      <div className="font-bold text-slate-100 flex items-center gap-2">
-                        <span
-                          className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                            order.side === 'BUY'
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                          }`}
-                        >
-                          {order.side} {order.positionSide}
-                        </span>
-                        <span>{order.symbol}</span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5 font-normal">
-                        Lots: <span className="text-slate-200 font-semibold">{order.quantity}</span>
-                      </div>
-                    </td>
-
-                    {/* Type & Leverage */}
-                    <td className="py-3.5 px-3">
-                      <div className="text-slate-200 font-semibold">{order.type}</div>
-                      <div className="text-[11px] text-slate-400 font-normal">
-                        {order.leverage}x XM Margin
-                      </div>
-                    </td>
-
-                    {/* Target Time */}
-                    <td className="py-3.5 px-3">
-                      <div className="text-cyan-300 font-semibold">{displayTargetTime}</div>
-                      <div className="text-[10px] text-slate-500">ID: {order.id}</div>
-                    </td>
-
-                    {/* Countdown or Drift Metric */}
-                    <td className="py-3.5 px-3">
-                      {isPending && (
-                        <div className="font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 animate-spin text-cyan-400" />
-                          <span>{formatCountdown(order.targetTime)}</span>
-                        </div>
-                      )}
-
-                      {isExecuting && (
-                        <div className="font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-500/40 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 animate-pulse">
-                          <Zap className="w-3.5 h-3.5 text-cyan-400 fill-current" />
-                          <span>TRIGGERING XM API...</span>
-                        </div>
-                      )}
-
-                      {isCompleted && (
-                        <div>
-                          <div className="text-emerald-400 font-semibold flex items-center gap-1 text-[11px]">
-                            <span>Accuracy:</span>
-                            <span className="bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 rounded">
-                              {order.precisionDriftMs !== undefined
-                                ? `${order.precisionDriftMs > 0 ? '+' : ''}${order.precisionDriftMs} ms`
-                                : '0 ms'}
-                            </span>
-                          </div>
-                          {(order.xmOrderId || order.brokerOrderId) && (
-                            <div className="text-[10px] text-slate-500 truncate max-w-[140px]">
-                              Ticket #{order.xmOrderId || order.brokerOrderId}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {(isFailed || isCancelled) && (
-                        <span className="text-slate-500 text-[11px]">—</span>
-                      )}
-                    </td>
-
-                    {/* Status */}
-                    <td className="py-3.5 px-3">
-                      {isPending && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                          PENDING
-                        </span>
-                      )}
-                      {isExecuting && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                          EXECUTING
-                        </span>
-                      )}
-                      {isCompleted && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 w-fit">
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span>FILLED</span>
-                        </span>
-                      )}
-                      {isFailed && (
-                        <div className="flex flex-col gap-1 max-w-[240px]">
-                          <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1 w-fit">
-                            <XCircle className="w-3 h-3 shrink-0" />
-                            <span>FAILED</span>
+                  return (
+                    <tr key={order.id} className="hover:bg-slate-900/40 dark:hover:bg-slate-900/40 light:hover:bg-slate-100 transition-all font-mono">
+                      {/* Symbol & Side */}
+                      <td className="py-3.5 px-3">
+                        <div className="font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 flex items-center gap-2">
+                          <span
+                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
+                              order.side === 'BUY'
+                                ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-400 light:text-emerald-700 border border-emerald-500/30'
+                                : 'bg-rose-500/20 text-rose-400 dark:text-rose-400 light:text-rose-700 border border-rose-500/30'
+                            }`}
+                          >
+                            {order.side} {order.positionSide}
                           </span>
-                          {order.errorMessage && (
-                            <div className="text-[10px] text-rose-300 bg-rose-950/60 border border-rose-800/50 px-2 py-1 rounded-lg break-words font-mono leading-tight">
-                              {order.errorMessage}
-                            </div>
-                          )}
+                          <span className="font-sans text-sm">{order.symbol}</span>
                         </div>
-                      )}
+                        <div className="text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 mt-0.5 font-normal">
+                          Volume: <span className="text-slate-200 dark:text-slate-200 light:text-slate-800 font-bold">{order.quantity} Lots</span>
+                        </div>
+                      </td>
 
-                      {isCancelled && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
-                          CANCELLED
-                        </span>
-                      )}
-                    </td>
+                      {/* Type & Leverage */}
+                      <td className="py-3.5 px-3">
+                        <div className="text-slate-200 dark:text-slate-200 light:text-slate-800 font-bold">{order.type}</div>
+                        <div className="text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-normal">
+                          {order.leverage}x XM Margin
+                        </div>
+                      </td>
 
-                    {/* Action */}
-                    <td className="py-3.5 px-3 text-right">
-                      {isPending && (
-                        <button
-                          onClick={() => onCancelOrder(order.id)}
-                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all font-sans text-xs font-semibold flex items-center gap-1 ml-auto"
-                        >
-                          <Ban className="w-3.5 h-3.5" />
-                          <span>Cancel</span>
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      {/* Target Time */}
+                      <td className="py-3.5 px-3">
+                        <div className="text-cyan-400 dark:text-cyan-300 light:text-cyan-600 font-bold">{displayTargetTime}</div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500">ID: {order.id}</div>
+                      </td>
+
+                      {/* Countdown or Drift Metric */}
+                      <td className="py-3.5 px-3">
+                        {isPending && (
+                          <div className="font-bold text-cyan-400 dark:text-cyan-400 light:text-cyan-600 bg-cyan-950/60 dark:bg-cyan-950/60 light:bg-cyan-50 border border-cyan-500/30 px-3 py-1 rounded-xl inline-flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                            <span>{formatCountdown(order.targetTime)}</span>
+                          </div>
+                        )}
+
+                        {isExecuting && (
+                          <div className="font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 rounded-xl inline-flex items-center gap-1.5 animate-pulse">
+                            <Zap className="w-3.5 h-3.5 text-cyan-400 fill-current" />
+                            <span>TRIGGERING MT5...</span>
+                          </div>
+                        )}
+
+                        {isCompleted && (
+                          <div>
+                            <div className="text-emerald-400 dark:text-emerald-400 light:text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                              <span>Accuracy:</span>
+                              <span className="bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 rounded-md">
+                                {order.precisionDriftMs !== undefined
+                                  ? `${order.precisionDriftMs > 0 ? '+' : ''}${order.precisionDriftMs} ms`
+                                  : '0 ms'}
+                              </span>
+                            </div>
+                            {(order.xmOrderId || order.brokerOrderId) && (
+                              <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                Ticket #{order.xmOrderId || order.brokerOrderId}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {(isFailed || isCancelled) && (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+
+                      {/* Status & Error Display */}
+                      <td className="py-3.5 px-3">
+                        {isPending && (
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                            PENDING
+                          </span>
+                        )}
+                        {isExecuting && (
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                            EXECUTING
+                          </span>
+                        )}
+                        {isCompleted && (
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 w-fit">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>FILLED</span>
+                          </span>
+                        )}
+                        {isFailed && (
+                          <div className="flex flex-col gap-1 max-w-[240px]">
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1 w-fit">
+                              <XCircle className="w-3 h-3 shrink-0" />
+                              <span>FAILED</span>
+                            </span>
+                            {order.errorMessage && (
+                              <div className="text-[10px] text-rose-300 dark:text-rose-300 light:text-rose-700 bg-rose-950/60 dark:bg-rose-950/60 light:bg-rose-50 border border-rose-800/50 dark:border-rose-800/50 light:border-rose-200 px-2.5 py-1 rounded-xl break-words font-mono leading-tight">
+                                {order.errorMessage}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {isCancelled && (
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 dark:bg-slate-800 light:bg-slate-200 text-slate-400 dark:text-slate-400 light:text-slate-600 border border-slate-700 dark:border-slate-700 light:border-slate-300">
+                            CANCELLED
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Action */}
+                      <td className="py-3.5 px-3 text-right">
+                        {isPending && (
+                          <button
+                            onClick={() => onCancelOrder(order.id)}
+                            className="p-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 dark:text-rose-400 light:text-rose-600 border border-rose-500/30 transition-all font-sans text-xs font-bold flex items-center gap-1 ml-auto active:scale-95"
+                          >
+                            <Ban className="w-3.5 h-3.5" />
+                            <span>Cancel</span>
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Clock, Terminal, Key, Zap, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Shield, Clock, Terminal, Key, Zap, CheckCircle2, AlertCircle, Sun, Moon } from 'lucide-react';
 import { SystemStatus } from '../types';
 
 interface HeaderProps {
   status: SystemStatus | null;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
   onOpenConfig: () => void;
   onOpenLogs: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ status, onOpenConfig, onOpenLogs }) => {
+export const Header: React.FC<HeaderProps> = ({ status, theme, onToggleTheme, onOpenConfig, onOpenLogs }) => {
   const [currentIst, setCurrentIst] = useState<string>('');
 
   useEffect(() => {
@@ -24,74 +26,101 @@ export const Header: React.FC<HeaderProps> = ({ status, onOpenConfig, onOpenLogs
       });
       const ms = String(now.getMilliseconds()).padStart(3, '0');
       setCurrentIst(`${timeStr}.${ms} IST`);
-    }, 45); // Update fast for millisecond tick
+    }, 45);
 
     return () => clearInterval(timer);
   }, [status]);
 
   return (
-    <header className="w-full glass-panel border-b border-slate-800 px-3 py-3 sm:px-6 sm:py-4 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
-        {/* Brand */}
-        <div className="flex items-center gap-2.5 sm:gap-3 w-full md:w-auto justify-between md:justify-start">
+    <header className="w-full glass-panel border-b border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 px-3 py-2.5 sm:px-6 sm:py-3.5 sticky top-0 z-40 shadow-sm transition-colors duration-300">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-4">
+        {/* Brand & Connection Pill */}
+        <div className="flex items-center justify-between w-full md:w-auto">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 via-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
-              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-black fill-current" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-current" />
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                <h1 className="text-sm sm:text-lg font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-400 dark:from-slate-100 dark:to-slate-300 light:from-slate-900 light:to-slate-700 bg-clip-text text-transparent">
                   XM360 Order Scheduler
                 </h1>
-                <span className="px-1.5 py-0.5 text-[10px] sm:text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shrink-0">
+                <span className="px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold rounded-full bg-cyan-500/10 text-cyan-500 border border-cyan-500/30 shrink-0">
                   1ms Engine
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-400 hidden xs:block">Automated FX, Gold & CFD Execution Engine</p>
+              <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-400 light:text-slate-500 hidden xs:block">High-Precision MetaTrader Order Execution</p>
             </div>
+          </div>
+
+          {/* Theme Switcher & Actions on Mobile */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            <button
+              onClick={onToggleTheme}
+              aria-label="Toggle Theme"
+              className="p-1.5 rounded-lg bg-slate-800/80 dark:bg-slate-800 light:bg-slate-200 text-slate-300 dark:text-slate-300 light:text-slate-700 hover:bg-slate-700 border border-slate-700 dark:border-slate-700 light:border-slate-300 transition-all"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+            </button>
+            <button
+              onClick={onOpenConfig}
+              className="p-1.5 rounded-lg bg-slate-800/80 dark:bg-slate-800 light:bg-slate-200 text-slate-300 dark:text-slate-300 light:text-slate-700 border border-slate-700 text-xs font-semibold"
+            >
+              <Key className="w-4 h-4 text-cyan-400" />
+            </button>
           </div>
         </div>
 
-        {/* Server Clock & API Status */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center sm:justify-end w-full md:w-auto">
+        {/* Server Clock & API Status Bar */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-between sm:justify-end w-full md:w-auto border-t border-slate-800/50 md:border-0 pt-2 md:pt-0">
           {/* Clock Sync Display */}
-          <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800 font-mono text-xs sm:text-sm">
-            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 animate-pulse shrink-0" />
-            <span className="text-cyan-300 font-semibold text-xs sm:text-sm">{currentIst || 'Syncing...'}</span>
+          <div className="flex items-center gap-1.5 bg-slate-900/90 dark:bg-slate-900/90 light:bg-white px-2.5 py-1.5 rounded-xl border border-slate-800 dark:border-slate-800 light:border-slate-200 font-mono text-xs shadow-inner">
+            <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse shrink-0" />
+            <span className="text-cyan-400 dark:text-cyan-300 light:text-cyan-600 font-bold text-xs">{currentIst || 'Syncing...'}</span>
             {status && (
-              <span className="text-[10px] sm:text-[11px] text-slate-400 border-l border-slate-700 pl-1.5 sm:pl-2">
-                Offset: <span className={Math.abs(status.offsetMs) < 50 ? 'text-emerald-400' : 'text-amber-400'}>{status.offsetMs > 0 ? `+${status.offsetMs}` : status.offsetMs}ms</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500 border-l border-slate-700/60 pl-1.5">
+                <span className={Math.abs(status.offsetMs) < 50 ? 'text-emerald-400 font-semibold' : 'text-amber-400 font-semibold'}>
+                  {status.offsetMs > 0 ? `+${status.offsetMs}` : status.offsetMs}ms
+                </span>
               </span>
             )}
           </div>
 
           {/* Account Status Pill */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             {status?.hasApiKeys ? (
-              <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] sm:text-xs font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                <span>XM Connected ({status.accountId || 'Active'})</span>
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 dark:text-emerald-400 light:text-emerald-600 border border-emerald-500/30 text-[11px] font-semibold">
+                <CheckCircle2 className="w-3 h-3 shrink-0" />
+                <span className="truncate max-w-[120px] sm:max-w-none">MT5 Connected ({status.accountId || 'Active'})</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[11px] sm:text-xs font-medium">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>No Account</span>
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[11px] font-semibold">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>MT5 Pending</span>
               </div>
             )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1.5">
+          {/* Desktop Action Buttons */}
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={onToggleTheme}
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+              className="p-2 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-white text-slate-300 dark:text-slate-300 light:text-slate-700 hover:bg-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-200 transition-all shadow-sm"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+            </button>
+
             <button
               onClick={onOpenConfig}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] sm:text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-white hover:bg-slate-800 text-slate-200 dark:text-slate-200 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-200 text-xs font-semibold transition-all shadow-sm"
             >
               <Key className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
               <span>Settings</span>
             </button>
             <button
               onClick={onOpenLogs}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] sm:text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-white hover:bg-slate-800 text-slate-200 dark:text-slate-200 light:text-slate-800 border border-slate-800 dark:border-slate-800 light:border-slate-200 text-xs font-semibold transition-all shadow-sm"
             >
               <Terminal className="w-3.5 h-3.5 text-blue-400 shrink-0" />
               <span>Logs</span>

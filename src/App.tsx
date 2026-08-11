@@ -10,6 +10,11 @@ import { api } from './services/api';
 import { SystemStatus, AccountBalance, Ticker, ScheduledOrder, ExecutionLog } from './types';
 
 export default function App() {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('XM360_THEME');
+    return (saved as 'dark' | 'light') || 'dark';
+  });
+
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [balance, setBalance] = useState<AccountBalance | null>(null);
   const [tickers, setTickers] = useState<Ticker[]>([]);
@@ -22,6 +27,23 @@ export default function App() {
   const [isBalanceLoading, setIsBalanceLoading] = useState<boolean>(false);
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
   const [isLogsOpen, setIsLogsOpen] = useState<boolean>(false);
+
+  // Sync theme with <html> document tag
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('XM360_THEME', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Load system status & server time sync
   const fetchStatus = useCallback(async () => {
@@ -44,6 +66,7 @@ export default function App() {
     } finally {
       setIsBalanceLoading(false);
     }
+
   }, []);
 
   // Load tickers
@@ -52,7 +75,6 @@ export default function App() {
       const data = await api.getPairs();
       setTickers(data);
       if (!selectedTicker && data.length > 0) {
-        // Find Gold symbol (XAUUSD, GOLD, GOLD.i#, etc.) as default
         const goldTicker = data.find(t => 
           t.symbol.toUpperCase().includes('XAU') || 
           t.symbol.toUpperCase().includes('GOLD')
@@ -63,7 +85,6 @@ export default function App() {
       console.warn('Failed to fetch pairs:', err);
     }
   }, [selectedTicker]);
-
 
   // Load orders queue
   const fetchOrders = useCallback(async () => {
@@ -109,7 +130,6 @@ export default function App() {
       const purchasingPowerUsdt = marginToUse * leverage;
       const computedQty = purchasingPowerUsdt / currentPrice;
 
-      // Format quantity with appropriate decimals
       if (computedQty >= 100) {
         setQuantity(computedQty.toFixed(1));
       } else if (computedQty >= 1) {
@@ -124,7 +144,7 @@ export default function App() {
   const handleScheduleOrder = async (orderData: {
     symbol: string;
     side: 'BUY' | 'SELL';
-    positionSide: 'LONG' | 'SHORT' | 'BOTH';
+    positionSide?: 'LONG' | 'SHORT' | 'BOTH';
     type: 'MARKET' | 'LIMIT';
     price?: number;
     quantity: number;
@@ -155,40 +175,21 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0E17] text-slate-100 selection:bg-cyan-500 selection:text-black">
-      {/* Top Header Navigation */}
+    <div className="min-h-screen bg-slate-950 dark:bg-slate-950 light:bg-slate-50 text-slate-100 dark:text-slate-100 light:text-slate-900 transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
+      {/* Header */}
       <Header
         status={status}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onOpenConfig={() => setIsConfigOpen(true)}
-        onOpenLogs={() => {
-          fetchLogs();
-          setIsLogsOpen(true);
-        }}
+        onOpenLogs={() => setIsLogsOpen(true)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
-        {/* No Account Prompt Banner */}
-        {status && !status.hasApiKeys && (
-          <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
-              <div>
-                <h4 className="text-sm font-bold text-amber-300">No XM MetaTrader Account Connected</h4>
-                <p className="text-xs text-slate-300">Please connect your XM MT5 Account & credentials to enable live balance metrics and order execution.</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsConfigOpen(true)}
-              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-bold shrink-0 transition-all shadow-lg shadow-cyan-500/20"
-            >
-              Connect XM Account
-            </button>
-          </div>
-        )}
-
-        {/* Top Grid: Balance & Quick Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Main Body Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6">
+        {/* Top Grid: Balance & Engine Metric Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Balance Card (1 col) */}
           <div className="md:col-span-1">
             <BalanceCard
               balance={balance}
@@ -200,36 +201,36 @@ export default function App() {
             />
           </div>
 
-          {/* Quick Stats Banner */}
-          <div className="md:col-span-2 glass-panel p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          {/* High-Precision XM Engine Banner (2 cols) */}
+          <div className="md:col-span-2 glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col justify-between gap-3 shadow-sm transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-200">High-Precision XM360 Engine</h3>
-                <p className="text-xs text-slate-400">XM Broker Millisecond Timestamp Execution</p>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 tracking-tight">High-Precision 1ms Execution Engine</h3>
+                <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-400 light:text-slate-500">Native Windows MT5 Terminal Execution</p>
               </div>
-              <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                2-Stage Spin-Lock Active
+              <span className="text-[10px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                Spin-Lock Active
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 my-3 text-center">
-              <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                <span className="text-[11px] text-slate-400">XM Broker Offset</span>
-                <div className="text-lg font-bold font-mono text-cyan-400 mt-0.5">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 my-1 text-center">
+              <div className="bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100/80 p-2.5 sm:p-3 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
+                <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">MT5 Time Sync</span>
+                <div className="text-sm sm:text-lg font-bold font-mono text-cyan-400 dark:text-cyan-400 light:text-cyan-600 mt-0.5">
                   {status ? (status.offsetMs > 0 ? `+${status.offsetMs}` : `${status.offsetMs}`) : '0'} ms
                 </div>
               </div>
 
-              <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                <span className="text-[11px] text-slate-400">Pending Orders</span>
-                <div className="text-lg font-bold font-mono text-amber-400 mt-0.5">
+              <div className="bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100/80 p-2.5 sm:p-3 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
+                <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">Pending Orders</span>
+                <div className="text-sm sm:text-lg font-bold font-mono text-amber-400 dark:text-amber-400 light:text-amber-600 mt-0.5">
                   {orders.filter((o) => o.status === 'PENDING').length}
                 </div>
               </div>
 
-              <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                <span className="text-[11px] text-slate-400">Avg Execution Drift</span>
-                <div className="text-lg font-bold font-mono text-emerald-400 mt-0.5">
+              <div className="bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100/80 p-2.5 sm:p-3 rounded-xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
+                <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">Avg Execution Accuracy</span>
+                <div className="text-sm sm:text-lg font-bold font-mono text-emerald-400 dark:text-emerald-400 light:text-emerald-600 mt-0.5">
                   {(() => {
                     const completed = orders.filter((o) => o.status === 'COMPLETED' && o.precisionDriftMs !== undefined);
                     if (completed.length === 0) return '±1.8 ms';
@@ -240,15 +241,15 @@ export default function App() {
               </div>
             </div>
 
-            <div className="text-[11px] text-slate-500 flex items-center justify-between">
-              <span>Selected Pair: <span className="text-slate-300 font-mono font-semibold">{selectedTicker?.symbol || 'XAUUSD'}</span> ({selectedTicker ? (selectedTicker.lastPrice < 10 ? selectedTicker.lastPrice.toFixed(4) : `$${selectedTicker.lastPrice.toLocaleString()}`) : '$2435.50'})</span>
-              <span>XM Server: <span className="text-slate-400 font-mono">{status?.serverName || 'XMGlobal-Real'}</span></span>
+            <div className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 flex items-center justify-between font-medium">
+              <span>Selected Pair: <span className="text-cyan-400 dark:text-cyan-400 light:text-cyan-600 font-mono font-bold">{selectedTicker?.symbol || 'XAUUSD'}</span> ({selectedTicker ? (selectedTicker.lastPrice < 10 ? selectedTicker.lastPrice.toFixed(4) : `$${selectedTicker.lastPrice.toLocaleString()}`) : '$2435.50'})</span>
+              <span>XM Server: <span className="text-slate-300 dark:text-slate-300 light:text-slate-800 font-mono font-bold">{status?.serverName || 'XMGlobal-Real'}</span></span>
             </div>
           </div>
         </div>
 
         {/* Main Grid: Order Form & Queue */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Order Form (5 cols) */}
           <div className="lg:col-span-5">
             <OrderForm

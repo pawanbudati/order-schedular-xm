@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, DollarSign, Layers, Send, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, DollarSign, Layers, Send, TrendingUp, TrendingDown, AlertCircle, Sparkles } from 'lucide-react';
 import { Ticker } from '../types';
 
 interface OrderFormProps {
@@ -98,20 +98,20 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       return;
     }
 
-    const qtyNum = parseFloat(quantity);
-    if (isNaN(qtyNum) || qtyNum <= 0) {
-      setErrorMsg('Please enter a valid order quantity.');
+    const computedTs = getComputedTargetTimestamp();
+    if (!computedTs) {
+      setErrorMsg('Invalid target execution date or time.');
       return;
     }
 
-    const targetTs = getComputedTargetTimestamp();
-    if (!targetTs) {
-      setErrorMsg('Please select a valid scheduled date and time.');
+    if (computedTs <= Date.now()) {
+      setErrorMsg('Target execution time must be in the future.');
       return;
     }
 
-    if (targetTs <= Date.now()) {
-      setErrorMsg('Scheduled time must be in the future.');
+    const parsedQty = parseFloat(quantity);
+    if (isNaN(parsedQty) || parsedQty <= 0) {
+      setErrorMsg('Please enter a valid order volume (lots).');
       return;
     }
 
@@ -122,10 +122,10 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         side,
         positionSide: side === 'BUY' ? 'LONG' : 'SHORT',
         type: orderType,
-        price: orderType === 'LIMIT' ? parseFloat(limitPrice) : undefined,
-        quantity: qtyNum,
+        price: orderType === 'LIMIT' && limitPrice ? parseFloat(limitPrice) : undefined,
+        quantity: parsedQty,
         leverage,
-        targetTime: targetTs,
+        targetTime: computedTs,
         stopLoss: stopLoss ? parseFloat(stopLoss) : undefined,
         takeProfit: takeProfit ? parseFloat(takeProfit) : undefined,
       });
@@ -140,48 +140,47 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   const timeRemainingMs = computedTs ? computedTs - Date.now() : null;
 
   return (
-    <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col gap-5">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800/80 pb-4 gap-4">
+    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex flex-col gap-4 sm:gap-5 transition-colors duration-300">
+      {/* Header & Side Tabs */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800/60 dark:border-slate-800/60 light:border-slate-200 pb-4 gap-3">
         <div>
-          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <span>Schedule XM360 Order</span>
+          <h2 className="text-base sm:text-lg font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 flex items-center gap-2 tracking-tight">
+            <span>Schedule XM Order</span>
           </h2>
-          <p className="text-xs text-slate-400">Configure MetaTrader instrument, lot size & exact millisecond trigger time</p>
+          <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-500">Configure instrument, lot size & 1ms trigger time</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Side Selector Tabs (BUY / SELL) */}
-          <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-            <button
-              type="button"
-              onClick={() => setSide('BUY')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                side === 'BUY'
-                  ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>BUY</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSide('SELL')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                side === 'SELL'
-                  ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <TrendingDown className="w-3.5 h-3.5" />
-              <span>SELL</span>
-            </button>
-          </div>
+        {/* Side Selector Tabs (BUY / SELL) */}
+        <div className="flex bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 p-1 rounded-xl border border-slate-800 dark:border-slate-800 light:border-slate-200 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => setSide('BUY')}
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 ${
+              side === 'BUY'
+                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>BUY</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSide('SELL')}
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 ${
+              side === 'SELL'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <TrendingDown className="w-3.5 h-3.5" />
+            <span>SELL</span>
+          </button>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 dark:text-rose-400 light:text-rose-600 text-xs flex items-center gap-2 animate-shake">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMsg}</span>
         </div>
@@ -189,17 +188,17 @@ export const OrderForm: React.FC<OrderFormProps> = ({
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Instrument & Leverage Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
           {/* Instrument Selector */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">XM Instrument (FX / CFD)</label>
+            <label className="block text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 mb-1.5">XM Instrument (FX / CFD / Gold)</label>
             <select
               value={selectedTicker?.symbol || ''}
               onChange={(e) => {
                 const found = tickers.find((t) => t.symbol === e.target.value);
                 if (found) onSelectTicker(found);
               }}
-              className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 font-semibold focus:outline-none focus:border-cyan-500 transition-all"
+              className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-100 dark:text-slate-100 light:text-slate-900 font-bold focus:outline-none focus:border-cyan-500 transition-all shadow-sm"
             >
               {tickers.map((t) => (
                 <option key={t.symbol} value={t.symbol} className="bg-slate-900 text-slate-100">
@@ -213,7 +212,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           {/* Leverage Selector & Slider */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium text-slate-400">XM Account Leverage</label>
+              <label className="text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700">XM Account Leverage</label>
               <div className="flex items-center gap-1">
                 <input
                   type="number"
@@ -224,7 +223,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
                     const val = parseInt(e.target.value, 10);
                     if (!isNaN(val)) setLeverage(Math.min(1000, Math.max(1, val)));
                   }}
-                  className="w-16 bg-slate-900 border border-cyan-500/40 rounded-md px-2 py-0.5 text-xs font-mono font-bold text-cyan-400 text-center focus:outline-none focus:border-cyan-400"
+                  className="w-16 bg-slate-900 dark:bg-slate-900 light:bg-white border border-cyan-500/40 rounded-lg px-2 py-0.5 text-xs font-mono font-bold text-cyan-400 dark:text-cyan-400 light:text-cyan-600 text-center focus:outline-none focus:border-cyan-400 shadow-sm"
                 />
                 <span className="text-xs font-mono text-cyan-400 font-bold">x</span>
               </div>
@@ -235,7 +234,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
               max="1000"
               value={leverage}
               onChange={(e) => setLeverage(parseInt(e.target.value, 10))}
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+              className="w-full h-2 bg-slate-800 dark:bg-slate-800 light:bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-400"
             />
             <div className="flex justify-between gap-1 text-[10px] text-slate-400 mt-1.5">
               {[10, 50, 100, 500, 1000].map((preset) => (
@@ -243,10 +242,10 @@ export const OrderForm: React.FC<OrderFormProps> = ({
                   key={preset}
                   type="button"
                   onClick={() => setLeverage(preset)}
-                  className={`px-1.5 py-0.5 rounded font-mono transition-all ${
+                  className={`px-1.5 py-0.5 rounded font-mono font-semibold transition-all ${
                     leverage === preset
-                      ? 'bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/40'
-                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
+                      : 'bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-100 text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {preset}x
@@ -256,17 +255,17 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           </div>
         </div>
 
-        {/* Order Type & Lot Volume Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Order Type & Volume (Lots) Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
           {/* Order Type */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">Order Type</label>
-            <div className="grid grid-cols-2 gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+            <label className="block text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 mb-1.5">Order Type</label>
+            <div className="grid grid-cols-2 gap-1.5 bg-slate-900/80 dark:bg-slate-900/80 light:bg-slate-100 p-1 rounded-xl border border-slate-800 dark:border-slate-800 light:border-slate-200">
               <button
                 type="button"
                 onClick={() => setOrderType('MARKET')}
-                className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                  orderType === 'MARKET' ? 'bg-slate-800 text-cyan-400 border border-slate-700' : 'text-slate-400'
+                className={`py-2 text-xs font-bold rounded-lg transition-all ${
+                  orderType === 'MARKET' ? 'bg-slate-800 dark:bg-slate-800 light:bg-white text-cyan-400 dark:text-cyan-400 light:text-cyan-600 shadow-sm' : 'text-slate-400'
                 }`}
               >
                 MARKET
@@ -274,8 +273,8 @@ export const OrderForm: React.FC<OrderFormProps> = ({
               <button
                 type="button"
                 onClick={() => setOrderType('LIMIT')}
-                className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                  orderType === 'LIMIT' ? 'bg-slate-800 text-cyan-400 border border-slate-700' : 'text-slate-400'
+                className={`py-2 text-xs font-bold rounded-lg transition-all ${
+                  orderType === 'LIMIT' ? 'bg-slate-800 dark:bg-slate-800 light:bg-white text-cyan-400 dark:text-cyan-400 light:text-cyan-600 shadow-sm' : 'text-slate-400'
                 }`}
               >
                 LIMIT
@@ -285,7 +284,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
 
           {/* Volume (Lots) */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 mb-1.5">
               Volume (Lots)
             </label>
             <div className="relative">
@@ -296,9 +295,9 @@ export const OrderForm: React.FC<OrderFormProps> = ({
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="0.01"
-                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-slate-100 focus:outline-none focus:border-cyan-500 transition-all"
+                className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 transition-all shadow-sm"
               />
-              <div className="absolute right-3 top-2.5 text-xs text-slate-400 font-mono">
+              <div className="absolute right-3 top-2.5 text-[11px] text-slate-400 font-mono">
                 {parseFloat(quantity || '0') <= 0.01 ? 'Micro Lot' : parseFloat(quantity || '0') < 1.0 ? 'Mini Lot' : 'Standard Lot'}
               </div>
             </div>
@@ -309,110 +308,111 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {orderType === 'LIMIT' && (
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Limit Price</label>
+              <label className="block text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 mb-1">Limit Price</label>
               <input
                 type="number"
                 step="any"
                 value={limitPrice}
                 onChange={(e) => setLimitPrice(e.target.value)}
                 placeholder={selectedTicker?.lastPrice.toString() || '2435.50'}
-                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Stop Loss (Optional)</label>
+            <label className="block text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 mb-1">Stop Loss (Optional)</label>
             <input
               type="number"
               step="any"
               value={stopLoss}
               onChange={(e) => setStopLoss(e.target.value)}
               placeholder="e.g. 2420.00"
-              className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono text-rose-400 focus:outline-none focus:border-rose-500"
+              className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-rose-400 dark:text-rose-400 light:text-rose-600 focus:outline-none focus:border-rose-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Take Profit (Optional)</label>
+            <label className="block text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 mb-1">Take Profit (Optional)</label>
             <input
               type="number"
               step="any"
               value={takeProfit}
               onChange={(e) => setTakeProfit(e.target.value)}
               placeholder="e.g. 2460.00"
-              className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 dark:text-emerald-400 light:text-emerald-600 focus:outline-none focus:border-emerald-500"
             />
           </div>
         </div>
 
         {/* High Precision Schedule Time Picker */}
-        <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col gap-3">
+        <div className="bg-slate-900/70 dark:bg-slate-900/70 light:bg-slate-100 p-3.5 sm:p-4 rounded-2xl border border-slate-800 dark:border-slate-800 light:border-slate-200 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-200 dark:text-slate-200 light:text-slate-800 flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-cyan-400" />
-              <span>Exact Execution Schedule Time</span>
+              <span>Exact Trigger Execution Time (IST)</span>
             </span>
             {timeRemainingMs !== null && timeRemainingMs > 0 && (
-              <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20">
+              <span className="text-[11px] font-mono text-cyan-400 dark:text-cyan-400 light:text-cyan-600 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/30 font-bold">
                 In {(timeRemainingMs / 1000).toFixed(1)}s
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
             {/* Date */}
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">Date</label>
+              <label className="block text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500 mb-1 font-medium">Target Date</label>
               <input
                 type="date"
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-950 dark:bg-slate-950 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 shadow-sm"
               />
             </div>
 
             {/* Time (hh:mm:ss) */}
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">Time (HH:mm:ss)</label>
+              <label className="block text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500 mb-1 font-medium font-mono">Target Time (HH:mm:ss)</label>
               <input
                 type="time"
                 step="1"
                 value={targetTimeStr}
                 onChange={(e) => setTargetTimeStr(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-950 dark:bg-slate-950 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 shadow-sm"
               />
             </div>
 
             {/* Milliseconds (000-999) */}
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">Millisecond (.SSS)</label>
+              <label className="block text-[10px] text-slate-400 dark:text-slate-400 light:text-slate-500 mb-1 font-medium font-mono">Millisecond (.SSS)</label>
               <input
                 type="number"
                 min="0"
                 max="999"
                 value={targetMsStr}
                 onChange={(e) => setTargetMsStr(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-950 dark:bg-slate-950 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-100 dark:text-slate-100 light:text-slate-900 focus:outline-none focus:border-cyan-500 shadow-sm"
               />
             </div>
           </div>
 
           {/* Quick Offset Shortcuts */}
-          <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
-            <span className="text-[11px] text-slate-400">Quick Shortcuts:</span>
+          <div className="flex items-center gap-1.5 flex-wrap text-xs pt-1">
+            <span className="text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">Quick Offset:</span>
             {[
               { label: '+10s', sec: 10 },
               { label: '+30s', sec: 30 },
               { label: '+1m', sec: 60 },
               { label: '+5m', sec: 300 },
+              { label: '+15m', sec: 900 },
               { label: '+1h', sec: 3600 },
             ].map((btn) => (
               <button
                 key={btn.label}
                 type="button"
                 onClick={() => setOffsetSeconds(btn.sec)}
-                className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-mono transition-all"
+                className="px-2.5 py-1 rounded-xl bg-slate-800 dark:bg-slate-800 light:bg-white hover:bg-slate-700 text-slate-200 dark:text-slate-200 light:text-slate-800 border border-slate-700 dark:border-slate-700 light:border-slate-300 font-mono text-[11px] font-bold transition-all active:scale-95 shadow-sm"
               >
                 {btn.label}
               </button>
@@ -424,7 +424,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full py-3.5 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg ${
+          className={`w-full py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.99] ${
             side === 'BUY'
               ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400'
               : 'bg-gradient-to-r from-rose-600 to-red-500 text-white shadow-rose-500/20 hover:from-rose-500 hover:to-red-400'
