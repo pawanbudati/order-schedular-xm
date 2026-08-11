@@ -3,7 +3,7 @@ import { ShieldCheck, Lock, ArrowRight, Eye, AlertCircle, UserCheck } from 'luci
 
 interface PasscodeModalProps {
   isAuthenticated: boolean;
-  onAuthenticateAdmin: (pin: string) => boolean;
+  onAuthenticateAdmin: (pin: string) => Promise<{ success: boolean; message: string }>;
   onGuestAccess: () => void;
 }
 
@@ -15,6 +15,7 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
   const [pin, setPin] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [isShaking, setIsShaking] = useState<boolean>(false);
+  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
 
   if (isAuthenticated) return null;
 
@@ -36,19 +37,27 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
     setErrorMsg('');
   };
 
-  const handleSubmitAdmin = (e?: React.FormEvent) => {
+  const handleSubmitAdmin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!pin) {
-      setErrorMsg('Please enter Admin PIN');
+      setErrorMsg('Please enter Admin PIN or Password');
       return;
     }
 
-    const success = onAuthenticateAdmin(pin);
-    if (!success) {
-      setErrorMsg('Incorrect Admin PIN. Default PIN is 1234');
-      setIsShaking(true);
-      setPin('');
-      setTimeout(() => setIsShaking(false), 500);
+    setIsAuthenticating(true);
+    setErrorMsg('');
+    try {
+      const res = await onAuthenticateAdmin(pin);
+      if (!res.success) {
+        setErrorMsg(res.message || 'Incorrect Admin PIN or Password');
+        setIsShaking(true);
+        setPin('');
+        setTimeout(() => setIsShaking(false), 500);
+      }
+    } catch {
+      setErrorMsg('Error verifying passcode with server');
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -152,10 +161,11 @@ export const PasscodeModal: React.FC<PasscodeModalProps> = ({
           {/* Admin Submit Button */}
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-cyan-500/20 active:scale-95 flex items-center justify-center gap-2"
+            disabled={isAuthenticating}
+            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-cyan-500/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <UserCheck className="w-4 h-4" />
-            <span>Unlock Admin Mode (Live Orders)</span>
+            <UserCheck className={`w-4 h-4 ${isAuthenticating ? 'animate-spin' : ''}`} />
+            <span>{isAuthenticating ? 'Verifying...' : 'Unlock Admin Mode (Live Orders)'}</span>
           </button>
         </form>
 

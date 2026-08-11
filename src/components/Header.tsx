@@ -126,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Account Status Pill */}
           <div className="flex items-center gap-1">
-            {status?.hasApiKeys ? (
+            {status?.hasApiKeys || status?.mt5Connected ? (
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 light:bg-emerald-100 text-emerald-400 dark:text-emerald-400 light:text-emerald-700 border border-emerald-500/30 light:border-emerald-300 text-[11px] font-semibold">
                 <CheckCircle2 className="w-3 h-3 shrink-0" />
                 <span>MT5 Connected</span>

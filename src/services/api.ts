@@ -62,6 +62,18 @@ export const setBackendUrl = (url: string): void => {
 const getApiBase = (): string => getBackendUrl();
 
 export const api = {
+  async verifyPasscode(passcode: string): Promise<{ success: boolean; message: string; role?: string }> {
+    try {
+      const res = await axios.post(`${getApiBase()}/verify-passcode`, { passcode }, { timeout: 4000 });
+      return res.data;
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err.response?.data?.message || err.message || 'Passcode verification failed',
+      };
+    }
+  },
+
   async getStatus(): Promise<SystemStatus> {
     try {
       const res = await axios.get(`${getApiBase()}/status`, { timeout: 3000 });

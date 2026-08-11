@@ -55,16 +55,16 @@ export default function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const handleAuthenticateAdmin = (enteredPin: string): boolean => {
-    const savedPin = localStorage.getItem('XM360_PASSCODE') || '1234';
-    if (enteredPin === savedPin) {
+  const handleAuthenticateAdmin = async (enteredPin: string): Promise<{ success: boolean; message: string }> => {
+    const res = await api.verifyPasscode(enteredPin);
+    if (res.success) {
       setUserRole('ADMIN');
       setIsAuthenticated(true);
       sessionStorage.setItem('XM360_USER_ROLE', 'ADMIN');
       sessionStorage.setItem('XM360_IS_AUTHENTICATED', 'true');
-      return true;
+      return { success: true, message: res.message || 'Admin authentication successful' };
     }
-    return false;
+    return { success: false, message: res.message || 'Incorrect Admin PIN or Password' };
   };
 
   const handleGuestAccess = () => {

@@ -4,6 +4,7 @@ export interface SystemStatus {
   localTime: number;
   offsetMs: number;
   hasApiKeys: boolean;
+  mt5Connected?: boolean;
   accountId?: string;
   serverName?: string;
   platform?: string;
