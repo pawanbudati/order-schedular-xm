@@ -89,12 +89,11 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1 md:hidden shrink-0">
             <button
               onClick={onOpenAccounts}
-              className="px-2 py-1 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 text-xs font-bold flex items-center gap-1"
+              title="Manage & Switch MT5 Accounts"
+              aria-label="Manage MT5 Accounts"
+              className="p-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 text-xs font-bold transition-all shadow-sm"
             >
-              <UserCheck className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate max-w-[120px]">
-                {activeAccObj ? getAccountDisplayName(activeAccObj) : status?.accountName || `#${status?.accountId || 'MT5'}`}
-              </span>
+              <UserCheck className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={onLock}
