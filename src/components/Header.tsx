@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile Actions & Lock */}
           <div className="flex items-center gap-1 md:hidden shrink-0">
             {/* Mobile Account Switcher Dropdown */}
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 text-xs font-bold">
+            {/* <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 text-xs font-bold">
               <UserCheck className="w-3.5 h-3.5 shrink-0" />
               <select
                 aria-label="Mobile Active MT5 Account"
@@ -117,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
                   ⚙️ Manage...
                 </option>
               </select>
-            </div>
+            </div> */}
 
             <button
               onClick={onLock}
