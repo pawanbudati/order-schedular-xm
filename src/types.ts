@@ -1,3 +1,14 @@
+export interface AccountConfig {
+  id: string; // Internal account key
+  accountId: string; // MT5 Login ID
+  accountName?: string;
+  serverName: string;
+  platform: 'MT4' | 'MT5';
+  password?: string;
+  terminalPath?: string;
+  isDefault?: boolean;
+}
+
 export interface SystemStatus {
   status: string;
   serverTime: number;
@@ -6,8 +17,11 @@ export interface SystemStatus {
   hasApiKeys: boolean;
   mt5Connected?: boolean;
   accountId?: string;
+  accountName?: string;
   serverName?: string;
   platform?: string;
+  activeAccountId?: string;
+  accountsCount?: number;
   mt5DockerStatus?: {
     containerRunning: boolean;
     containerExists: boolean;
@@ -23,6 +37,7 @@ export interface AccountBalance {
   usedMargin: number;
   currency?: string;
   marginLevel?: number;
+  accountId?: string;
 }
 
 export interface Ticker {
@@ -58,8 +73,11 @@ export interface ScheduledOrder {
   stopLoss?: number;
   takeProfit?: number;
   isMock?: boolean;
+  accountId?: string;
+  accountName?: string;
+  serverName?: string;
+  terminalPath?: string;
 }
-
 
 export interface ExecutionLog {
   id: string;
@@ -69,3 +87,4 @@ export interface ExecutionLog {
   message: string;
   details?: any;
 }
+

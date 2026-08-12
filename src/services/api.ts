@@ -91,11 +91,77 @@ export const api = {
     }
   },
 
+  async getAccounts(): Promise<{
+    accounts: any[];
+    activeAccountId: string;
+    activeAccount?: any;
+    detectedInstances?: any[];
+    configuredPaths?: string[];
+  }> {
+    try {
+      const res = await axios.get(`${getApiBase()}/accounts`, { timeout: 4000 });
+      return (
+        res.data?.data || {
+          accounts: [],
+          activeAccountId: '',
+          detectedInstances: [],
+          configuredPaths: [],
+        }
+      );
+    } catch {
+      return { accounts: [], activeAccountId: '', detectedInstances: [], configuredPaths: [] };
+    }
+  },
+
+  async addAccount(accountData: {
+    accountId: string;
+    accountName?: string;
+    serverName?: string;
+    platform?: 'MT4' | 'MT5';
+    password?: string;
+    terminalPath?: string;
+  }) {
+    try {
+      const res = await axios.post(`${getApiBase()}/accounts`, accountData, { timeout: 4000 });
+      return res.data;
+    } catch (err: any) {
+      return { success: false, error: err.response?.data?.error || err.message };
+    }
+  },
+
+  async updateAccount(id: string, updates: any) {
+    try {
+      const res = await axios.put(`${getApiBase()}/accounts/${id}`, updates, { timeout: 4000 });
+      return res.data;
+    } catch (err: any) {
+      return { success: false, error: err.response?.data?.error || err.message };
+    }
+  },
+
+  async deleteAccount(id: string) {
+    try {
+      const res = await axios.delete(`${getApiBase()}/accounts/${id}`, { timeout: 4000 });
+      return res.data;
+    } catch (err: any) {
+      return { success: false, error: err.response?.data?.error || err.message };
+    }
+  },
+
+  async switchAccount(targetId: string) {
+    try {
+      const res = await axios.post(`${getApiBase()}/accounts/switch`, { id: targetId }, { timeout: 6000 });
+      return res.data;
+    } catch (err: any) {
+      return { success: false, error: err.response?.data?.error || err.message };
+    }
+  },
+
   async updateConfig(config: {
     apiToken?: string;
     accountId?: string;
     serverName?: string;
     platform?: 'MT4' | 'MT5';
+    terminalPath?: string;
   }) {
     try {
       const res = await axios.post(`${getApiBase()}/config`, config, { timeout: 3000 });
@@ -105,9 +171,9 @@ export const api = {
     }
   },
 
-  async connectMt5Bridge(): Promise<{ success: boolean; message: string }> {
+  async connectMt5Bridge(accId?: string): Promise<{ success: boolean; message: string }> {
     try {
-      const res = await axios.post(`${getApiBase()}/config/connect-mt5`, {}, { timeout: 8000 });
+      const res = await axios.post(`${getApiBase()}/config/connect-mt5`, { accountId: accId }, { timeout: 8000 });
       return res.data;
     } catch (err: any) {
       return {
@@ -117,26 +183,31 @@ export const api = {
     }
   },
 
-  async getBalance(): Promise<AccountBalance> {
+  async getBalance(accId?: string): Promise<AccountBalance> {
     try {
-      const res = await axios.get(`${getApiBase()}/balance`, { timeout: 3000 });
+      const res = await axios.get(`${getApiBase()}/balance`, {
+        params: accId ? { accountId: accId } : undefined,
+        timeout: 3000,
+      });
       return res.data?.data || { asset: 'USD', balance: 0, equity: 0, availableMargin: 0, usedMargin: 0 };
     } catch {
       return { asset: 'USD', balance: 0, equity: 0, availableMargin: 0, usedMargin: 0 };
     }
   },
 
-  async getPairs(): Promise<Ticker[]> {
+  async getPairs(accId?: string): Promise<Ticker[]> {
     try {
-      const res = await axios.get(`${getApiBase()}/pairs`, { timeout: 3000 });
+      const res = await axios.get(`${getApiBase()}/pairs`, {
+        params: accId ? { accountId: accId } : undefined,
+        timeout: 3000,
+      });
       return res.data.data;
     } catch {
-      // Offline fallback popular XM instruments
       return [
-        { symbol: 'XAUUSD', lastPrice: 2435.50, bidPrice: 2435.35, askPrice: 2435.65, priceChangePercent: 0.85, high24h: 2448.00, low24h: 2422.10, volume24h: 890500, spread: 0.30 },
-        { symbol: 'EURUSD', lastPrice: 1.0925, bidPrice: 1.0924, askPrice: 1.0926, priceChangePercent: -0.15, high24h: 1.0955, low24h: 1.0910, volume24h: 1240100, spread: 0.0002 },
-        { symbol: 'GBPUSD', lastPrice: 1.2840, bidPrice: 1.2839, askPrice: 1.2841, priceChangePercent: 0.32, high24h: 1.2875, low24h: 1.2810, volume24h: 650300, spread: 0.0002 },
-        { symbol: 'USDJPY', lastPrice: 147.20, bidPrice: 147.19, askPrice: 147.21, priceChangePercent: 0.45, high24h: 147.80, low24h: 146.50, volume24h: 780900, spread: 0.02 },
+        { symbol: 'XAUUSD', lastPrice: 2435.5, bidPrice: 2435.35, askPrice: 2435.65, priceChangePercent: 0.85, high24h: 2448.0, low24h: 2422.1, volume24h: 890500, spread: 0.3 },
+        { symbol: 'EURUSD', lastPrice: 1.0925, bidPrice: 1.0924, askPrice: 1.0926, priceChangePercent: -0.15, high24h: 1.0955, low24h: 1.091, volume24h: 1240100, spread: 0.0002 },
+        { symbol: 'GBPUSD', lastPrice: 1.284, bidPrice: 1.2839, askPrice: 1.2841, priceChangePercent: 0.32, high24h: 1.2875, low24h: 1.281, volume24h: 650300, spread: 0.0002 },
+        { symbol: 'USDJPY', lastPrice: 147.2, bidPrice: 147.19, askPrice: 147.21, priceChangePercent: 0.45, high24h: 147.8, low24h: 146.5, volume24h: 780900, spread: 0.02 },
         { symbol: 'US30', lastPrice: 39450.0, bidPrice: 39448.0, askPrice: 39452.0, priceChangePercent: 0.65, high24h: 39600.0, low24h: 39300.0, volume24h: 420100, spread: 4.0 },
         { symbol: 'US500', lastPrice: 5420.5, bidPrice: 5420.0, askPrice: 5421.0, priceChangePercent: 0.52, high24h: 5440.0, low24h: 5400.0, volume24h: 510200, spread: 1.0 },
         { symbol: 'BTCUSD', lastPrice: 95500.0, bidPrice: 95480.0, askPrice: 95520.0, priceChangePercent: 2.15, high24h: 96200.0, low24h: 94100.0, volume24h: 1540200, spread: 40.0 },
@@ -155,12 +226,15 @@ export const api = {
     targetTime: number;
     stopLoss?: number;
     takeProfit?: number;
+    accountId?: string;
+    accountName?: string;
+    serverName?: string;
+    terminalPath?: string;
   }): Promise<ScheduledOrder> {
     try {
       const res = await axios.post(`${getApiBase()}/schedule`, orderData, { timeout: 3000 });
       return res.data.data;
     } catch {
-      // Offline local order simulation
       const newOrder: ScheduledOrder = {
         id: `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         symbol: orderData.symbol,
@@ -171,10 +245,15 @@ export const api = {
         price: orderData.price,
         leverage: orderData.leverage,
         targetTime: orderData.targetTime,
+        targetTimeFormatted: new Date(orderData.targetTime).toLocaleTimeString(),
         status: 'PENDING',
         createdAt: Date.now(),
         stopLoss: orderData.stopLoss,
         takeProfit: orderData.takeProfit,
+        accountId: orderData.accountId || '50000000',
+        accountName: orderData.accountName || `MT5 Account ${orderData.accountId || '50000000'}`,
+        serverName: orderData.serverName || 'XMGlobal-Real 30',
+        terminalPath: orderData.terminalPath,
       };
 
       localOrdersQueue.unshift(newOrder);
@@ -215,7 +294,6 @@ export const api = {
   },
 
   async clearOrderHistory(): Promise<boolean> {
-    const deletedIds = getDeletedOrderIds();
     localOrdersQueue.forEach((o) => {
       if (o.status === 'COMPLETED' || o.status === 'FAILED' || o.status === 'CANCELLED') {
         addDeletedOrderId(o.id);
@@ -239,3 +317,4 @@ export const api = {
     }
   },
 };
+

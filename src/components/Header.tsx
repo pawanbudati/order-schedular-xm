@@ -9,6 +9,7 @@ interface HeaderProps {
   onToggleTheme: () => void;
   onOpenConfig: () => void;
   onOpenLogs: () => void;
+  onOpenAccounts: () => void;
   onLock: () => void;
 }
 
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   onOpenConfig,
   onOpenLogs,
+  onOpenAccounts,
   onLock,
 }) => {
   const [currentIst, setCurrentIst] = useState<string>('');
@@ -65,6 +67,13 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile Actions & Lock */}
           <div className="flex items-center gap-1 md:hidden shrink-0">
             <button
+              onClick={onOpenAccounts}
+              className="px-2 py-1 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 text-xs font-bold flex items-center gap-1"
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>#{status?.accountId || 'MT5'}</span>
+            </button>
+            <button
               onClick={onLock}
               title={userRole === 'ADMIN' ? 'Switch Role / Lock' : 'Unlock Admin Mode'}
               aria-label="Lock / Switch Role"
@@ -92,6 +101,16 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Server Clock & API Status Bar */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-between sm:justify-end w-full md:w-auto border-t border-slate-200 dark:border-slate-800/50 md:border-0 pt-2 md:pt-0">
+          {/* Active MT5 Account Quick Switcher Trigger */}
+          <button
+            onClick={onOpenAccounts}
+            title="Click to manage & switch MT5 accounts"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border border-cyan-500/30 text-xs font-extrabold shadow-sm transition active:scale-95"
+          >
+            <UserCheck className="w-3.5 h-3.5 shrink-0" />
+            <span>{status?.accountName || `Acct #${status?.accountId || '50000000'}`}</span>
+          </button>
+
           {/* Clock Sync Display */}
           <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-slate-100 px-2.5 py-1 rounded-xl border border-slate-300 dark:border-slate-800 font-mono text-xs shadow-sm">
             <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400 animate-pulse shrink-0" />
@@ -143,6 +162,15 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Action Buttons */}
           <div className="hidden md:flex items-center gap-2">
+            {/* Accounts Button */}
+            <button
+              onClick={onOpenAccounts}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold transition-all shadow-sm active:scale-95"
+            >
+              <UserCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>Accounts ({status?.accountsCount || 1})</span>
+            </button>
+
             {/* Lock / Role Button */}
             <button
               onClick={onLock}

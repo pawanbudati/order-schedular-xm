@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, DollarSign, Layers, Send, TrendingUp, TrendingDown, AlertCircle, Eye, ShieldCheck } from 'lucide-react';
-import { Ticker } from '../types';
+import { Calendar, Clock, DollarSign, Layers, Send, TrendingUp, TrendingDown, AlertCircle, Eye, ShieldCheck, UserCheck } from 'lucide-react';
+import { Ticker, AccountConfig } from '../types';
 
 interface OrderFormProps {
   userRole: 'ADMIN' | 'GUEST';
@@ -11,6 +11,8 @@ interface OrderFormProps {
   setQuantity: (val: string) => void;
   leverage: number;
   setLeverage: (val: number) => void;
+  accounts?: AccountConfig[];
+  activeAccountId?: string;
   onSubmitSchedule: (orderData: {
     symbol: string;
     side: 'BUY' | 'SELL';
@@ -22,6 +24,10 @@ interface OrderFormProps {
     targetTime: number;
     stopLoss?: number;
     takeProfit?: number;
+    accountId?: string;
+    accountName?: string;
+    serverName?: string;
+    terminalPath?: string;
   }) => Promise<void>;
 }
 
@@ -30,11 +36,12 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   tickers,
   selectedTicker,
   onSelectTicker,
-
   quantity,
   setQuantity,
   leverage,
   setLeverage,
+  accounts = [],
+  activeAccountId = '',
   onSubmitSchedule,
 }) => {
   const [side, setSide] = useState<'BUY' | 'SELL'>('BUY');
@@ -42,6 +49,13 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   const [limitPrice, setLimitPrice] = useState<string>('');
   const [stopLoss, setStopLoss] = useState<string>('');
   const [takeProfit, setTakeProfit] = useState<string>('');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>(activeAccountId);
+
+  useEffect(() => {
+    if (activeAccountId && !selectedAccountId) {
+      setSelectedAccountId(activeAccountId);
+    }
+  }, [activeAccountId]);
 
   // Date and Time state
   const [targetDate, setTargetDate] = useState<string>('');
@@ -118,6 +132,8 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       return;
     }
 
+    const targetAccObj = accounts.find((a) => a.id === selectedAccountId || a.accountId === selectedAccountId);
+
     setIsSubmitting(true);
     try {
       await onSubmitSchedule({
@@ -131,6 +147,10 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         targetTime: computedTs,
         stopLoss: stopLoss ? parseFloat(stopLoss) : undefined,
         takeProfit: takeProfit ? parseFloat(takeProfit) : undefined,
+        accountId: targetAccObj?.accountId || selectedAccountId || activeAccountId,
+        accountName: targetAccObj?.accountName,
+        serverName: targetAccObj?.serverName,
+        terminalPath: targetAccObj?.terminalPath,
       });
 
       // Scroll smoothly to Orders Queue after scheduling
@@ -202,8 +222,30 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        {/* Instrument & Leverage Row */}
+        {/* Account & Instrument Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+          {/* Target Account Selector */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-900 dark:text-slate-300 mb-1 flex items-center gap-1">
+              <UserCheck className="w-3 h-3 text-cyan-500" /> Target MT5 Account
+            </label>
+            <select
+              value={selectedAccountId || activeAccountId}
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+              className="w-full bg-white dark:bg-slate-900/90 border border-slate-400 dark:border-slate-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-bold focus:outline-none focus:border-blue-600 dark:focus:border-cyan-500 transition-all shadow-sm"
+            >
+              {accounts.length > 0 ? (
+                accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                    {acc.accountName || `MT5 Account ${acc.accountId}`} (#{acc.accountId})
+                  </option>
+                ))
+              ) : (
+                <option value={activeAccountId}>Active Account #{activeAccountId || '50000000'}</option>
+              )}
+            </select>
+          </div>
+
           {/* Instrument Selector */}
           <div>
             <label className="block text-[11px] font-bold text-slate-900 dark:text-slate-300 mb-1">Instrument</label>
