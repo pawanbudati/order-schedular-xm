@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Clock, Terminal, Key, Zap, CheckCircle2, AlertCircle, Sun, Moon, Lock, ShieldCheck, Eye } from 'lucide-react';
+import { Shield, Clock, Terminal, Key, Zap, CheckCircle2, AlertCircle, Sun, Moon, Lock, ShieldCheck, Eye, UserCheck } from 'lucide-react';
 import { SystemStatus } from '../types';
 
 interface HeaderProps {
