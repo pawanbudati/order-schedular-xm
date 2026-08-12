@@ -6,6 +6,9 @@ interface HeaderProps {
   status: SystemStatus | null;
   theme: 'dark' | 'light';
   userRole: 'ADMIN' | 'GUEST';
+  accounts?: AccountConfig[];
+  activeAccountId?: string;
+  onSwitchAccount?: (id: string) => Promise<void>;
   onToggleTheme: () => void;
   onOpenConfig: () => void;
   onOpenLogs: () => void;
@@ -17,6 +20,9 @@ export const Header: React.FC<HeaderProps> = ({
   status,
   theme,
   userRole,
+  accounts = [],
+  activeAccountId = '',
+  onSwitchAccount,
   onToggleTheme,
   onOpenConfig,
   onOpenLogs,
@@ -42,6 +48,8 @@ export const Header: React.FC<HeaderProps> = ({
 
     return () => clearInterval(timer);
   }, [status]);
+
+  const currentSelectedId = activeAccountId || (accounts.find((a) => a.accountId === status?.accountId)?.id || '');
 
   return (
     <header className="w-full glass-panel border-b border-slate-200 dark:border-slate-800/80 px-3 py-2.5 sm:px-6 sm:py-3 sticky top-0 z-40 shadow-sm transition-colors duration-300">
@@ -101,15 +109,43 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Server Clock & API Status Bar */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-between sm:justify-end w-full md:w-auto border-t border-slate-200 dark:border-slate-800/50 md:border-0 pt-2 md:pt-0">
-          {/* Active MT5 Account Quick Switcher Trigger */}
-          <button
-            onClick={onOpenAccounts}
-            title="Click to manage & switch MT5 accounts"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border border-cyan-500/30 text-xs font-extrabold shadow-sm transition active:scale-95"
-          >
-            <UserCheck className="w-3.5 h-3.5 shrink-0" />
-            <span>{status?.accountName || `Acct #${status?.accountId || '50000000'}`}</span>
-          </button>
+          {/* Active MT5 Account Selector / Quick Switcher */}
+          {accounts.length > 0 && onSwitchAccount ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-500/10 dark:bg-cyan-950/50 border border-cyan-500/30 text-xs font-extrabold shadow-sm transition">
+              <UserCheck className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+              <select
+                aria-label="Active Account Selector"
+                value={currentSelectedId}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'MANAGE') {
+                    onOpenAccounts();
+                  } else if (onSwitchAccount) {
+                    onSwitchAccount(val);
+                  }
+                }}
+                className="bg-transparent text-slate-900 dark:text-cyan-300 font-extrabold focus:outline-none cursor-pointer text-xs"
+              >
+                {accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-bold">
+                    {acc.accountName || `MT5 Account ${acc.accountId}`} (#{acc.accountId})
+                  </option>
+                ))}
+                <option value="MANAGE" className="bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 font-bold">
+                  ⚙️ Manage Accounts...
+                </option>
+              </select>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAccounts}
+              title="Click to manage & switch MT5 accounts"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border border-cyan-500/30 text-xs font-extrabold shadow-sm transition active:scale-95"
+            >
+              <UserCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>{status?.accountName || `Acct #${status?.accountId || '50000000'}`}</span>
+            </button>
+          )}
 
           {/* Clock Sync Display */}
           <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-slate-100 px-2.5 py-1 rounded-xl border border-slate-300 dark:border-slate-800 font-mono text-xs shadow-sm">

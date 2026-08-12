@@ -354,6 +354,9 @@ export default function App() {
         status={status}
         theme={theme}
         userRole={userRole}
+        accounts={accounts}
+        activeAccountId={activeAccountId}
+        onSwitchAccount={handleSwitchAccount}
         onToggleTheme={toggleTheme}
         onOpenConfig={() => setIsConfigOpen(true)}
         onOpenLogs={() => setIsLogsOpen(true)}
