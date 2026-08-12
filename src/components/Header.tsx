@@ -51,7 +51,18 @@ export const Header: React.FC<HeaderProps> = ({
     return () => clearInterval(timer);
   }, [status]);
 
-  const currentSelectedId = activeAccountId || (accounts.find((a) => a.accountId === status?.accountId)?.id || status?.accountId || '');
+  const activeAccObj = accounts.find(
+    (a) => a.id === activeAccountId || a.accountId === activeAccountId || a.accountId === status?.accountId
+  );
+  const currentSelectedId = activeAccObj ? activeAccObj.id : (activeAccountId || status?.accountId || '');
+
+  const getAccountDisplayName = (acc: AccountConfig) => {
+    let name = acc.accountName;
+    if ((!name || name.startsWith('MT5 Account') || name.startsWith('XM Account') || name === 'Default MT5 Account') && acc.accountId === status?.accountId && status?.accountName) {
+      name = status.accountName;
+    }
+    return name ? `${name} (#${acc.accountId})` : `MT5 Account #${acc.accountId}`;
+  };
 
   return (
     <header className="w-full glass-panel border-b border-slate-200 dark:border-slate-800/80 px-3 py-2.5 sm:px-6 sm:py-3 sticky top-0 z-40 shadow-sm transition-colors duration-300">
@@ -90,16 +101,16 @@ export const Header: React.FC<HeaderProps> = ({
                     onSwitchAccount(val);
                   }
                 }}
-                className="bg-transparent text-cyan-700 dark:text-cyan-400 font-extrabold focus:outline-none cursor-pointer text-xs max-w-[110px] truncate"
+                className="bg-transparent text-cyan-700 dark:text-cyan-400 font-extrabold focus:outline-none cursor-pointer text-xs max-w-[130px] truncate"
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-bold">
-                    {acc.accountName || `Acct #${acc.accountId}`}
+                    {getAccountDisplayName(acc)}
                   </option>
                 ))}
                 {accounts.length === 0 && (
                   <option value={status?.accountId || ''}>
-                    {status?.accountName || `Acct #${status?.accountId || 'MT5'}`}
+                    {status?.accountName || `MT5 Account #${status?.accountId || '50000000'}`}
                   </option>
                 )}
                 <option value="MANAGE" className="bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 font-bold">
@@ -155,7 +166,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-bold">
-                  {acc.accountName || `MT5 Account ${acc.accountId}`} (#{acc.accountId})
+                  {getAccountDisplayName(acc)}
                 </option>
               ))}
               {accounts.length === 0 && (
